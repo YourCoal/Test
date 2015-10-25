@@ -380,7 +380,6 @@ public class TownInfoCommand extends CommandBase {
 			
 	}
 	
-	
 	public void cottage_cmd() throws CivException {
 		Town town = getSelectedTown();
 		ArrayList<String> out = new ArrayList<String>();	
@@ -435,7 +434,6 @@ public class TownInfoCommand extends CommandBase {
 		
 		CivMessage.send(sender, out);
 	}
-	
 	
 	public void mine_cmd() throws CivException {
 		Town town = getSelectedTown();
@@ -507,7 +505,6 @@ public class TownInfoCommand extends CommandBase {
 	}
 	
 	public static void show(CommandSender sender, Resident resident, Town town, Civilization civ, CommandBase parent) throws CivException {
-		
 		DecimalFormat df = new DecimalFormat();
 		boolean isAdmin = false;
 		
@@ -520,9 +517,8 @@ public class TownInfoCommand extends CommandBase {
 		}
 		
 		CivMessage.sendHeading(sender, town.getName()+" Info ");
-		ConfigTownLevel level = CivSettings.townLevels.get(town.getLevel());
-
-		CivMessage.send(sender, CivColor.Green+"Civilization: "+CivColor.LightGreen+town.getCiv().getName());
+		
+		CivMessage.send(sender, CivColor.Green+"Civilization Of: "+CivColor.LightGreen+town.getCiv().getName());
 		CivMessage.send(sender, CivColor.Green+"Town Level: "+CivColor.LightGreen+town.getLevel()+" ("+town.getLevelTitle()+") "+
 		CivColor.Green+"Score: "+CivColor.LightGreen+town.getScore());
 		
@@ -538,42 +534,44 @@ public class TownInfoCommand extends CommandBase {
 			CivMessage.send(sender, CivColor.Green+"Assistants: "+CivColor.LightGreen+town.getAssistantGroup().getMembersString());		
 		}
 		
+		ConfigTownLevel level = CivSettings.townLevels.get(town.getLevel());
 		if (resident == null || civ.hasResident(resident) || isAdmin) {
-		
 			String color = CivColor.LightGreen;
 			if (town.getTileImprovementCount() > level.tile_improvements) {
 				color = CivColor.Rose;
 			}
 			
-			CivMessage.send(sender, CivColor.Green+"Plots: "+CivColor.LightGreen+"("+town.getTownChunks().size()+"/"+town.getMaxPlots()+") "+
-									CivColor.Green+" Tile Improvements: "+CivColor.LightGreen+"("+color+town.getTileImprovementCount()+CivColor.LightGreen+"/"+level.tile_improvements+")");
+			CivMessage.send(sender, CivColor.Green+"Claimed Plots: "+CivColor.LightGreen+"("+town.getTownChunks().size()+"/"+town.getMaxPlots()+")  "+
+									CivColor.Green+"Tile Improvements: "+CivColor.LightGreen+"("+color+town.getTileImprovementCount()+CivColor.LightGreen+"/"+level.tile_improvements+")");
 			
 			
-			
-			//CivMessage.send(sender, CivColor.Green+"Outposts: "+CivColor.LightGreen+town.getOutpostChunks().size()+" "+
-			CivMessage.send(sender, CivColor.Green+"Growth: "+CivColor.LightGreen+df.format(town.getGrowth().total)+" " +
-									CivColor.Green+"Hammers: "+CivColor.LightGreen+df.format(town.getHammers().total)+" "+
+			CivMessage.send(sender, CivColor.Green+"Growth: "+CivColor.LightGreen+df.format(town.getGrowth().total)+"  " +
+									CivColor.Green+"Hammers: "+CivColor.LightGreen+df.format(town.getHammers().total)+"  "+
 									CivColor.Green+"Beakers: "+CivColor.LightGreen+df.format(town.getBeakers().total));
 			
 			
-			CivMessage.send(sender, CivColor.Green+"Members: "+CivColor.LightGreen+town.getResidentCount()+" "+
-									CivColor.Green+"Tax Rate: "+CivColor.LightGreen+town.getTaxRateString()+" "+
-									CivColor.Green+"Flat Tax: "+CivColor.LightGreen+town.getFlatTax()+" coins.");
+			CivMessage.send(sender, CivColor.Green+"Total Members: "+CivColor.LightGreen+town.getResidentCount()+"  "+
+									CivColor.Green+"Members Online: "+CivColor.LightGreen+town.getOnlineResidents().size());
+			CivMessage.send(sender, CivColor.Green+"Property Tax Rate: "+CivColor.LightGreen+town.getTaxRateString()+"  "+
+									CivColor.Green+"Player Tax Rate: "+CivColor.LightGreen+town.getFlatTax()+" Coins");
+			
 			
 			HashMap<String,String> info = new HashMap<String, String>();
 //			info.put("Happiness", CivColor.White+"("+CivColor.LightGreen+"H"+CivColor.Yellow+town.getHappinessTotal()
 //					+CivColor.White+"/"+CivColor.Rose+"U"+CivColor.Yellow+town.getUnhappinessTotal()+CivColor.White+") = "+
 //					CivColor.LightGreen+df.format(town.getHappinessPercentage()*100)+"%");
-			info.put("Happiness", CivColor.LightGreen+df.format(Math.floor(town.getHappinessPercentage()*100))+"%");
+			info.put("Happiness Percent", CivColor.LightGreen+df.format(Math.floor(town.getHappinessPercentage()*100))+"%");
 			ConfigHappinessState state = town.getHappinessState();
-			info.put("State", ""+CivColor.valueOf(state.color)+state.name);	
+			info.put("Happiness State", ""+CivColor.valueOf(state.color)+state.name);
 			CivMessage.send(sender, parent.makeInfoString(info, CivColor.Green, CivColor.LightGreen));
 			
 			
+			CivMessage.send(sender, CivColor.Green+"Safety State: "+CivColor.Yellow+"Normal  " +
+					CivColor.Green+"Safety Percent: "+CivColor.LightGreen+"70%");
+			
+			
 			ConfigCultureLevel clc = CivSettings.cultureLevels.get(town.getCultureLevel());	
-			CivMessage.send(sender, CivColor.Green+"Culture: "+CivColor.LightGreen+"Level: "+clc.level+" ("+town.getAccumulatedCulture()+"/"+clc.amount+")"+
-					CivColor.Green+" Online: "+CivColor.LightGreen+town.getOnlineResidents().size());
-
+			CivMessage.send(sender, CivColor.Green+"Culture: "+CivColor.LightGreen+"Level: "+clc.level+" ("+town.getAccumulatedCulture()+"/"+clc.amount+") ("+clc.amount+" Chunks)");
 		}
 		
 		if (town.getBonusGoodies().size() > 0) {
@@ -587,14 +585,14 @@ public class TownInfoCommand extends CommandBase {
 		if (resident == null || town.isInGroup("mayors", resident) || town.isInGroup("assistants", resident) || 
 				civ.getLeaderGroup().hasMember(resident) || civ.getAdviserGroup().hasMember(resident) || isAdmin) {
 			try {
-				CivMessage.send(sender, CivColor.Green+"Treasury: "+CivColor.LightGreen+town.getBalance()+CivColor.Green+" coins. Upkeep: "+CivColor.LightGreen+town.getTotalUpkeep()*town.getGovernment().upkeep_rate);
+				CivMessage.send(sender, CivColor.Green+"Treasury: "+CivColor.LightGreen+town.getBalance()+" Coins  Upkeep: "+CivColor.LightGreen+town.getTotalUpkeep()*town.getGovernment().upkeep_rate);
 				Structure bank = town.getStructureByType("s_bank");
 				if (bank != null) { 
 					CivMessage.send(sender, CivColor.Green+"Interest Rate: "+CivColor.LightGreen+df.format(((Bank)bank).getInterestRate()*100)+"%"+
 							CivColor.Green+" Principle: "+CivColor.LightGreen+town.getTreasury().getPrincipalAmount());
 				} else {
-					CivMessage.send(sender, CivColor.Green+"Interest Rate: "+CivColor.LightGreen+"N/A(No Bank) "+
-							CivColor.Green+"Principal: "+CivColor.LightGreen+"N/A(No Bank)");
+					CivMessage.send(sender, CivColor.Green+"Interest Rate: "+CivColor.LightGreen+"No Bank  "+
+							CivColor.Green+"Principal: "+CivColor.LightGreen+"No Bank");
 				}
 			} catch (InvalidConfiguration e) {
 				e.printStackTrace();
@@ -629,22 +627,16 @@ public class TownInfoCommand extends CommandBase {
 					wars += relation.getOtherCiv().getName()+", ";
 				}
 			}
-			
 			CivMessage.send(sender, CivColor.LightPurple+"Wars: "+wars);
-			
 		}
-		
 	}
-	
 	
 	
 	private void show_info() throws CivException {
 		Civilization civ = getSenderCiv();	
 		Town town = getSelectedTown();
 		Resident resident = getResident();
-		
 		show(sender, resident, town, civ, this);	
-				
 	}
 	
 	@Override
@@ -652,14 +644,13 @@ public class TownInfoCommand extends CommandBase {
 		show_info();
 		CivMessage.send(sender, CivColor.LightGray+"Subcommands available: See /town info help");
 	}
-
+	
 	@Override
 	public void showHelp() {
 		showBasicHelp();
 	}
-
+	
 	@Override
 	public void permissionCheck() throws CivException {		
 	}
-
 }

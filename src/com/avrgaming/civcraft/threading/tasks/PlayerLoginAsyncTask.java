@@ -57,7 +57,6 @@ public class PlayerLoginAsyncTask implements Runnable {
 		if (player == null) {
 			throw new CivException("Player offline now. May have been kicked.");
 		}
-		
 		return player;
 	}
 	
@@ -65,7 +64,14 @@ public class PlayerLoginAsyncTask implements Runnable {
 	public void run() {
 		try {
 			CivLog.info("Running PlayerLoginAsyncTask for "+getPlayer().getName()+" UUID("+playerUUID+")");
-			Resident resident = CivGlobal.getResident(getPlayer().getName());
+				Resident resident = CivGlobal.getResidentViaUUID(playerUUID);
+				if (resident != null && !resident.getName().toLowerCase().equals(getPlayer().getName().toLowerCase()))
+				{
+					CivGlobal.removeResident(resident);
+					resident.setName(getPlayer().getName().toLowerCase());
+					resident.save();
+					CivGlobal.addResident(resident);
+				}
 			
 			/* 
 			 * Test to see if player has changed their name. If they have, these residents
@@ -256,6 +262,9 @@ public class PlayerLoginAsyncTask implements Runnable {
 		} catch (CivException playerNotFound) {
 			// Player logged out while async task was running.
 			CivLog.warning("Couldn't complete PlayerLoginAsyncTask. Player may have been kicked while async task was running.");
+		} catch (InvalidNameException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 	

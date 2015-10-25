@@ -52,7 +52,7 @@ public class FoundTownSync implements Runnable {
 		}
 
 		//CivMessage.sendSuccess(sender, "Town "+args[1]+" has been founded.");
-		CivMessage.global(resident.desiredTownName+" has been founded by "+resident.getCiv().getName()+"!");
+		CivMessage.global(resident.getName()+" has founded the town "+resident.desiredTownName+" by the civilization "+resident.getCiv().getName()+"!");
 	}
 
 }

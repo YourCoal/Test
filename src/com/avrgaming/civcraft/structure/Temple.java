@@ -28,6 +28,7 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigTempleSacrifice;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivMessage;
+import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -51,7 +52,6 @@ public class Temple extends Structure {
 		return "church";
 	}
 	
-
 	public void onEntitySacrifice(EntityType entityType) {
 		ConfigTempleSacrifice sac = null;
 		for (ConfigTempleSacrifice s : CivSettings.templeSacrifices) {
@@ -67,10 +67,8 @@ public class Temple extends Structure {
 			return;
 		}
 		
-		this.getTown().addAccumulatedCulture(sac.reward);
-		CivMessage.sendTown(this.getTown(), "Our Sacrifice has awarded our town "+CivColor.LightPurple+sac.reward+CivColor.White+" culture.");
+		this.getTown().addAccumulatedCulture(sac.reward*this.getTown().getBuffManager().getEffectiveDouble(Buff.MATURING)+50);
+		CivMessage.sendTown(this.getTown(), "Our Sacrifice has awarded our town "+CivColor.LightPurple+(sac.reward*this.getTown().getBuffManager().getEffectiveDouble(Buff.MATURING)+50)+CivColor.White+" culture.");
 		this.getTown().save();
 	}
-
-
 }

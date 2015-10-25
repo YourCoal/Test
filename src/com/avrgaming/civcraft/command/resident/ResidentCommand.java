@@ -274,7 +274,6 @@ public class ResidentCommand extends CommandBase {
 		}
 		
 		Resident resident = getNamedResident(1);
-		
 		show(sender, resident);
 	}
 
@@ -330,9 +329,8 @@ public class ResidentCommand extends CommandBase {
 		}
 		
 		if (resident.getDaysTilEvict() > 0) {
-			CivMessage.send(resident, CivColor.Yellow+"Eviction in "+resident.getDaysTilEvict()+" days.");
+			CivMessage.send(resident, CivColor.Yellow+"Eviction in "+resident.getDaysTilEvict()+" days!");
 		}
-		
 		CivMessage.send(sender, CivColor.Green+"Groups: "+resident.getGroupsString());
 		
 		try {

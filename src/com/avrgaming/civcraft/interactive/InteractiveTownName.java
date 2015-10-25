@@ -68,7 +68,6 @@ public class InteractiveTownName implements InteractiveResponse {
 				this.resident = resident;
 			}
 			
-			
 			@Override
 			public void run() {
 				Player player;
@@ -93,12 +92,7 @@ public class InteractiveTownName implements InteractiveResponse {
 				resident.setInteractiveMode(new InteractiveConfirmTownCreation());				
 			}
 		}
-		
 		TaskMaster.syncTask(new SyncTask(resident));
-
 		return;
-		
-		
 	}
-
 }

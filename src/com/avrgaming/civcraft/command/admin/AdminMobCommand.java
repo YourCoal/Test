@@ -3,7 +3,7 @@ package com.avrgaming.civcraft.command.admin;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import net.minecraft.server.v1_7_R4.EntityCreature;
+import net.minecraft.server.v1_8_R3.EntityCreature;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -47,10 +47,9 @@ public class AdminMobCommand extends CommandBase {
 			mob.entity.getBukkitEntity().remove();
 			count++;
 		}
-		
 		CivMessage.sendSuccess(player, "Removed "+count+ " mobs of type "+name);
 	}
-
+	
 	public void count_cmd() throws CivException {
 		Player player = getPlayer();
 		
@@ -61,12 +60,12 @@ public class AdminMobCommand extends CommandBase {
 			if (count == null) {
 				count = 0;
 			}
-			
 			amounts.put(mob.getClass().getSimpleName(), count+1);
 		}
 		
 		CivMessage.sendHeading(player, "Custom Mob Counts");
-		CivMessage.send(player, CivColor.LightGray+"Red mobs are over their count limit for this area and should no longer spawn.");
+		CivMessage.send(player, CivColor.LightGray+"Red mobs are over their count limit for this area and should no longer spawn. "
+				+ "We recommend killing these mobs to lower lag on the server.");
 		for (String mob : amounts.keySet()) {
 			int count = amounts.get(mob);
 			
@@ -76,7 +75,6 @@ public class AdminMobCommand extends CommandBase {
 			} else {
 				CivMessage.send(player, CivColor.Green+mob+": "+CivColor.LightGreen+count);
 			}
-			
 		}
 		CivMessage.send(player, CivColor.Green+"Total Mobs:"+CivColor.LightGreen+total);
 	}
@@ -86,23 +84,12 @@ public class AdminMobCommand extends CommandBase {
 		String name = getNamedString(1, "Enter a mob name");
 		
 		switch (name.toLowerCase()) {
-		case "behemoth":
-			CommonCustomMob.disabledMobs.add(CustomMobType.BEHEMOTH.toString());
-			break;
 		case "yobo":
 			CommonCustomMob.disabledMobs.add(CustomMobType.YOBO.toString());
 			break;
-		case "savagae":
-			CommonCustomMob.disabledMobs.add(CustomMobType.SAVAGE.toString());
-
-			break;
-		case "ruffian":
-			CommonCustomMob.disabledMobs.add(CustomMobType.RUFFIAN.toString());
-			break;
 		default:
-			throw new CivException("Must be behemoth, yobo, savage, or ruffian");
+			throw new CivException("Must be Yobo");
 		}
-		
 		CivMessage.sendSuccess(player, "Disabled "+name);
 	}
 	
@@ -111,21 +98,11 @@ public class AdminMobCommand extends CommandBase {
 		String name = getNamedString(1, "Enter a mob name");
 		
 		switch (name.toLowerCase()) {
-		case "behemoth":
-			CommonCustomMob.disabledMobs.remove(CustomMobType.BEHEMOTH.toString());
-			break;
 		case "yobo":
-			CommonCustomMob.disabledMobs.remove(CustomMobType.YOBO.toString());
-			break;
-		case "savagae":
-			CommonCustomMob.disabledMobs.remove(CustomMobType.SAVAGE.toString());
-
-			break;
-		case "ruffian":
-			CommonCustomMob.disabledMobs.remove(CustomMobType.RUFFIAN.toString());
+			CommonCustomMob.disabledMobs.add(CustomMobType.YOBO.toString());
 			break;
 		default:
-			throw new CivException("Must be behemoth, yobo, savage, or ruffian");
+			throw new CivException("Must be Yobo");
 		}
 		
 		CivMessage.sendSuccess(player, "Enabled "+name);
@@ -143,5 +120,4 @@ public class AdminMobCommand extends CommandBase {
 	@Override
 	public void permissionCheck() throws CivException {
 	}
-
 }

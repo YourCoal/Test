@@ -70,5 +70,4 @@ public class InteractiveConfirmTownCreation implements InteractiveResponse {
 		
 //		TaskMaster.syncTask(new FoundTownSync(resident));
 	}
-
 }

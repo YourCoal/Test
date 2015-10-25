@@ -1,23 +1,4 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.command.town;
-
 
 import org.bukkit.entity.Player;
 
@@ -41,8 +22,8 @@ public class TownSetCommand extends CommandBase {
 		command = "/town set";
 		displayName = "Town Set";
 		
-		commands.put("taxrate", "Change the town's property tax rate.");
-		commands.put("flattax", "Change the town's flat tax on membership.");
+		commands.put("propertytax", "Change the town's property tax rate.");
+		commands.put("residenttax", "Change the town's resident tax rate.");
 		commands.put("bankfee", "Change the town Bank's non member fee");
 		commands.put("storefee", "Change the town Store's non member fee");
 		commands.put("grocerfee", "Change the town Grocer's non member fee");
@@ -191,7 +172,7 @@ public class TownSetCommand extends CommandBase {
 		
 	}
 	
-	public void taxrate_cmd() throws CivException {
+	public void propertytax_cmd() throws CivException {
 		Town town = getSelectedTown();
 		
 		if (args.length < 2) {
@@ -205,10 +186,10 @@ public class TownSetCommand extends CommandBase {
 		}
 		
 		town.quicksave();
-		CivMessage.sendTown(town, "Town changed property tax rate to "+args[1]+"%");
+		CivMessage.sendTown(town, "Town changed property tax rate to "+args[1]+"%.");
 	}
 
-	public void flattax_cmd() throws CivException {
+	public void residenttax_cmd() throws CivException {
 		Town town = getSelectedTown();	
 		if (args.length < 2) {
 			throw new CivException("Please specify a tax rate.");
@@ -221,7 +202,7 @@ public class TownSetCommand extends CommandBase {
 		}
 		
 		town.quicksave();
-		CivMessage.send(town, "Town changed flat tax to "+args[1]);
+		CivMessage.sendTown(town, "Town changed resident tax rate to "+args[1]+" coins.");
 	}
 	
 	@Override
@@ -243,5 +224,4 @@ public class TownSetCommand extends CommandBase {
 			throw new CivException("Only mayors and assistants can use this command.");
 		}		
 	}
-
 }

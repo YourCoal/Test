@@ -38,6 +38,7 @@ import com.avrgaming.civcraft.object.MissionLogger;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.BookUtil;
+import com.avrgaming.civcraft.util.CivColor;
 
 public class Spy extends UnitMaterial {
 	
@@ -98,7 +99,6 @@ public class Spy extends UnitMaterial {
 				}	
 			}
 		}
-		
 	}
 	
 	@Override
@@ -106,7 +106,6 @@ public class Spy extends UnitMaterial {
 		//Add Books to inventory.
 		giveMissionBooks(player);
 	}
-	
 	
 	@Override
 	public void onItemFromPlayer(Player player, ItemStack stack) {
@@ -122,28 +121,24 @@ public class Spy extends UnitMaterial {
 			return;
 		}
 		
-		
 		ArrayList<String> bookout = MissionLogger.getMissionLogs(resident.getTown());
 		
 		ItemStack book = new ItemStack(Material.WRITTEN_BOOK, 1);
 		BookMeta meta = (BookMeta) book.getItemMeta();
 		ArrayList<String> lore = new ArrayList<String>();
 		lore.add("Mission Report");
-		meta.setAuthor("Mission Reports");
+		meta.setAuthor(CivColor.Gray+"Spy Director");
 		meta.setTitle("Missions From "+resident.getTown().getName());
 		
 		String out = "";
 		for (String str : bookout) {
 			out += str+"\n";
 		}
-		BookUtil.paginate(meta, out);			
-
+		BookUtil.paginate(meta, out);
 		
 		meta.setLore(lore);
 		book.setItemMeta(meta);
 		player.getWorld().dropItem(player.getLocation(), book);
 		
 	}
-	
-	
 }

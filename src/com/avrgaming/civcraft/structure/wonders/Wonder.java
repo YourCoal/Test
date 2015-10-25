@@ -445,7 +445,7 @@ public abstract class Wonder extends Buildable {
 			cultureCount += t.getCultureChunks().size();
 		}
 		
-		double coinsPerCulture = Double.valueOf(CivSettings.buffs.get("buff_colossus_coins_from_culture").value);
+		double coinsPerCulture = Double.valueOf(CivSettings.buffs.get("buff:colossus_coins_from_culture").value);
 		
 		double total = coinsPerCulture*cultureCount;
 		this.getCiv().getTreasury().deposit(total);

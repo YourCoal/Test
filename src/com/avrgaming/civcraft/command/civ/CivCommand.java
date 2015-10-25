@@ -67,6 +67,7 @@ public class CivCommand extends CommandBase {
 		commands.put("victory", "Show which civs are close to victory.");
 		commands.put("votes", "Shows the diplomatic votes for all civs.");
 		commands.put("top5", "Show the top 5 civilizations in the world.");
+		commands.put("top", "Show the top civilizations in the world.");
 		commands.put("disbandtown", "[town] Disbands this town. Mayor must also issue /town disbandtown");
 		commands.put("revolution", "stages a revolution for the mother civilization!");
 		commands.put("claimleader", "claim yourself as leader of this civ. All current leaders must be inactive.");
@@ -281,14 +282,13 @@ public class CivCommand extends CommandBase {
 		synchronized(CivGlobal.civilizationScores) {
 			int i = 1;
 			for (Integer score : CivGlobal.civilizationScores.descendingKeySet()) {
-				CivMessage.send(sender, i+") "+CivColor.Gold+CivGlobal.civilizationScores.get(score).getName()+CivColor.White+" - "+score+" points");
+				CivMessage.send(sender, i+") "+CivColor.Gold+CivGlobal.civilizationScores.get(score).getName()+CivColor.White+" - "+score+" Points");
 				i++;
-				if (i > 5) {
+				if (i > 10) {
 					break;
 				}
 			}
 		}
-		
 	}
 	
 	public void dip_cmd() {

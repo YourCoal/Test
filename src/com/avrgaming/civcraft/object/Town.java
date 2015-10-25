@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Location;
@@ -88,7 +89,7 @@ public class Town extends SQLObject {
 	private ConcurrentHashMap<String, Resident> fakeResidents = new ConcurrentHashMap<String, Resident>();
 
 	private ConcurrentHashMap<ChunkCoord, TownChunk> townChunks = new ConcurrentHashMap<ChunkCoord, TownChunk>();
-	private ConcurrentHashMap<ChunkCoord, TownChunk> outposts = new ConcurrentHashMap<ChunkCoord, TownChunk>();
+
 	private ConcurrentHashMap<ChunkCoord, CultureChunk> cultureChunks = new ConcurrentHashMap<ChunkCoord, CultureChunk>();
 	
 	private ConcurrentHashMap<BlockCoord, Wonder> wonders = new ConcurrentHashMap<BlockCoord, Wonder>();
@@ -150,6 +151,7 @@ public class Town extends SQLObject {
 	
 	/* XXX kind of a hacky way to save the bank's level information between build undo calls */
 	public int saved_bank_level = 1;
+	public int saved_quarry_level = 1;
 	public double saved_bank_interest_amount = 0;
 	
 	/* Happiness Stuff */
@@ -583,8 +585,8 @@ public class Town extends SQLObject {
 		
 		double additional = this.getBuffManager().getEffectiveDouble(Buff.FINE_ART);
 		
-		if (this.getBuffManager().hasBuff("buff_pyramid_culture")) {
-			additional += this.getBuffManager().getEffectiveDouble("buff_pyramid_culture");
+		if (this.getBuffManager().hasBuff("buff:pyramid_culture")) {
+			additional += this.getBuffManager().getEffectiveDouble("buff:pyramid_culture");
 		}
 		
 		rates.put("Wonders/Goodies", additional);
@@ -1303,16 +1305,15 @@ public class Town extends SQLObject {
 		upkeep += this.getBaseUpkeep();
 		//upkeep += this.getSpreadUpkeep();
 		upkeep += this.getStructureUpkeep();
-		upkeep += this.getOutpostUpkeep();
 		
 		upkeep *= getGovernment().upkeep_rate;
 		
-		if (this.getBuffManager().hasBuff("buff_colossus_reduce_upkeep")) {
-			upkeep = upkeep - (upkeep*this.getBuffManager().getEffectiveDouble("buff_colossus_reduce_upkeep"));
+		if (this.getBuffManager().hasBuff("buff:colossus_reduce_upkeep")) {
+			upkeep = upkeep - (upkeep*this.getBuffManager().getEffectiveDouble("buff:colossus_reduce_upkeep"));
 		}
 		
-		if (this.getBuffManager().hasBuff("debuff_colossus_leech_upkeep")) {
-			double rate = this.getBuffManager().getEffectiveDouble("debuff_colossus_leech_upkeep");
+		if (this.getBuffManager().hasBuff("debuff:colossus_leech_upkeep")) {
+			double rate = this.getBuffManager().getEffectiveDouble("debuff:colossus_leech_upkeep");
 			double amount = upkeep*rate;
 			
 			Wonder colossus = CivGlobal.getWonderByConfigId("w_colossus");
@@ -1321,7 +1322,7 @@ public class Town extends SQLObject {
 			} else {
 				CivLog.warning("Unable to find Colossus wonder but debuff for leech upkeep was present!");
 				//Colossus is "null", doesn't exist, we remove the buff in case of duplication
-				this.getBuffManager().removeBuff("debuff_colossus_leech_upkeep"); 
+				this.getBuffManager().removeBuff("debuff:colossus_leech_upkeep"); 
 			}
 		}
 		
@@ -1795,9 +1796,9 @@ public class Town extends SQLObject {
 		
 		/* Wonders and Goodies. */
 		double additional = this.getBuffManager().getEffectiveDouble(Buff.GROWTH_RATE);
-		additional += this.getBuffManager().getEffectiveDouble("buff_hanging_gardens_growth");
+		additional += this.getBuffManager().getEffectiveDouble("buff:hanging_gardens_growth");
 		
-		double additionalGrapes = this.getBuffManager().getEffectiveDouble("buff_hanging_gardens_additional_growth");
+		double additionalGrapes = this.getBuffManager().getEffectiveDouble("buff:hanging_gardens_additional_growth");
 		int grapeCount = 0;
 		for (BonusGoodie goodie : this.getBonusGoodies()) {
 			if (goodie.getDisplayName().equalsIgnoreCase("grapes")) {
@@ -1897,10 +1898,6 @@ public class Town extends SQLObject {
 		ChunkCoord townHallChunk = new ChunkCoord(townHall.getCorner().getLocation());
 		
 		for (TownChunk tc : this.getTownChunks()) {
-			if (tc.isOutpost()) {
-				continue;
-			}
-			
 			if (tc.getChunkCoord().equals(townHallChunk))
 				continue;
 			
@@ -1911,14 +1908,13 @@ public class Town extends SQLObject {
 				
 				total += upkeep;
 			} 
-			
-		}
-		
 		return Math.floor(total);
+		}
+		return falloff;
 	}
 
 	public double getTotalUpkeep() throws InvalidConfiguration {
-		return this.getBaseUpkeep() + this.getStructureUpkeep() + this.getSpreadUpkeep() + this.getOutpostUpkeep();
+		return this.getBaseUpkeep() + this.getStructureUpkeep() + this.getSpreadUpkeep();
 	}
 
 	public double getTradeRate() {
@@ -1958,11 +1954,7 @@ public class Town extends SQLObject {
 	}
 
 	public void removeTownChunk(TownChunk tc) {
-		if (tc.isOutpost()) {
-			this.outposts.remove(tc.getChunkCoord());
-		} else {
-			this.townChunks.remove(tc.getChunkCoord());
-		}
+		this.townChunks.remove(tc.getChunkCoord());
 	}
 
 	public Double getHammersFromCulture() {
@@ -2326,46 +2318,25 @@ public class Town extends SQLObject {
 		
 		return points;
 	}
-
-	public void addOutpostChunk(TownChunk tc) throws AlreadyRegisteredException {
-		if (outposts.containsKey(tc.getChunkCoord())) {
-			throw new AlreadyRegisteredException("Outpost at "+tc.getChunkCoord()+" already registered to town "+this.getName());
-		}
-		outposts.put(tc.getChunkCoord(), tc);	
-	}
-
-	public Collection<TownChunk> getOutpostChunks() {
-		return outposts.values();
-	}
-
-	public double getOutpostUpkeep() {
-//		double outpost_upkeep;
-//		try {
-//			outpost_upkeep = CivSettings.getDouble(CivSettings.townConfig, "town.outpost_upkeep");
-//		} catch (InvalidConfiguration e) {
-//			e.printStackTrace();
-//			return 0.0;
-//		}
-		//return outpost_upkeep*outposts.size();
-		return 0;
-	}
-
+	
 	public boolean isOutlaw(String name) {
-		return this.outlaws.contains(name);
+		Resident res = CivGlobal.getResident(name);
+		return this.outlaws.contains(res.getUUIDString());
 	}
 	
 	public void addOutlaw(String name) {
-		this.outlaws.add(name);
-		TaskMaster.syncTask(new SyncUpdateTags(name, this.residents.values()));
+		Resident res = CivGlobal.getResident(name);
+		this.outlaws.add(res.getUUIDString());
+		TaskMaster.syncTask(new SyncUpdateTags(res.getUUIDString(), this.residents.values()));
 	}
 	
 	public void removeOutlaw(String name) {
-		this.outlaws.remove(name);
-		TaskMaster.syncTask(new SyncUpdateTags(name, this.residents.values()));
+		Resident res = CivGlobal.getResident(name);
+		this.outlaws.remove(res.getUUIDString());
+		TaskMaster.syncTask(new SyncUpdateTags(res.getUUIDString(), this.residents.values()));
 	}
 	
 	public void changeCiv(Civilization newCiv) {
-		
 		/* Remove this town from its old civ. */
 		Civilization oldCiv = this.civ;
 		oldCiv.removeTown(this);
@@ -2378,7 +2349,7 @@ public class Town extends SQLObject {
 		/* Remove any outlaws which are in our new civ. */
 		LinkedList<String> removeUs = new LinkedList<String>();
 		for (String outlaw : this.outlaws) {
-			Resident resident = CivGlobal.getResident(outlaw);
+			Resident resident = CivGlobal.getResidentViaUUID(UUID.fromString(outlaw));
 			if (newCiv.hasResident(resident)) {
 				removeUs.add(outlaw);
 			}
@@ -2577,7 +2548,7 @@ public class Town extends SQLObject {
 		/* Additional rate increases from buffs. */
 		/* Great Library buff is made to not stack with Science_Rate */
 		double additional = rate*getBuffManager().getEffectiveDouble(Buff.SCIENCE_RATE);
-		additional += rate*getBuffManager().getEffectiveDouble("buff_greatlibrary_extra_beakers");
+		additional += rate*getBuffManager().getEffectiveDouble("buff:greatlibrary_extra_beakers");
 		rate += additional;
 		rates.put("Goodies/Wonders", additional);
 
@@ -2673,7 +2644,7 @@ public class Town extends SQLObject {
 		sources.put("Base Happiness", townlevel);
 		
 		/* Grab any sources from buffs. */
-		double goodiesWonders = this.buffManager.getEffectiveDouble("buff_hedonism");
+		double goodiesWonders = this.buffManager.getEffectiveDouble("buff:hedonism");
 		sources.put("Goodies/Wonders", goodiesWonders);
 		total += goodiesWonders;
 		

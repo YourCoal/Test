@@ -21,6 +21,8 @@ public class SLSManager implements Runnable {
 	public static String serverName;
 	public static String serverDescription;
 	public static String serverAddress;
+	public static String serverURL;
+	public static String serverURLDescription;
 	public static String serverTimezone;
 	public static String gen_id;
 	
@@ -50,6 +52,16 @@ public class SLSManager implements Runnable {
 			throw new CivException("Cannot have a server address with a ';' in it.");
 		}
 		
+		serverURL = CivSettings.getStringBase("server_url");
+		if (serverURL.contains(";")) {
+			throw new CivException("Cannot have a server url with a ';' in it.");
+		}
+		
+		serverURLDescription = CivSettings.getStringBase("server_url_description");
+		if (serverURLDescription.contains(";")) {
+			throw new CivException("Cannot have a server url description with a ';' in it.");
+		}
+		
 		serverTimezone = CivSettings.getStringBase("server_timezone");
 		if (serverTimezone.contains(";")) {
 			throw new CivException("Cannot have a server timezone with a ';' in it.");
@@ -64,7 +76,7 @@ public class SLSManager implements Runnable {
 		}
 		
 	
-		TaskMaster.asyncTimer("SLS", new SLSManager(), TimeTools.toTicks(60));
+		TaskMaster.asyncTimer("SLS", new SLSManager(), TimeTools.toTicks(5));
 	}
 	
 	public static String getParsedVersion() {
@@ -76,7 +88,7 @@ public class SLSManager implements Runnable {
 	public static void sendHeartbeat() {
 		try {
 			InetAddress address = InetAddress.getByName("atlas.civcraft.net");
-			String message = gen_id+";"+serverName+";"+serverDescription+";"+serverTimezone+";"+serverAddress+";"+
+			String message = gen_id+";<a href=\""+serverURL+"\" title=\""+serverURLDescription+"\" target=\"_blank\" style=\"color:darkaqua\"><strong>"+serverName+"</strong></a>;<strong>"+serverDescription+"</strong>;"+serverTimezone+";<strong>"+serverAddress+"</strong>;"+
 					Bukkit.getOnlinePlayers().size()+";"+Bukkit.getMaxPlayers()+";"+getParsedVersion();
 			
 			try {
@@ -86,7 +98,7 @@ public class SLSManager implements Runnable {
 			} catch (InvalidConfiguration e1) {
 			}
 			
-			DatagramPacket packet = new DatagramPacket(message.getBytes(), message.toCharArray().length, address, 25580);
+			DatagramPacket packet = new DatagramPacket(message.getBytes(), message.toCharArray().length, address, 25665);
 			DatagramSocket socket;
 			try {
 				socket = new DatagramSocket();
@@ -94,17 +106,14 @@ public class SLSManager implements Runnable {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			
 		} catch (UnknownHostException e) {
 			CivLog.error("Couldn't IP address to SLS service. If you're on a LAN with no internet access, disable SLS in the CivCraft config.");
 			//e.printStackTrace();
 		}
 	}
-
-
+	
 	@Override
 	public void run() {
 		SLSManager.sendHeartbeat();
 	}
-	
 }

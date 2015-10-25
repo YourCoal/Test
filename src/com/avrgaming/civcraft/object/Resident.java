@@ -51,8 +51,6 @@ import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
-import com.avrgaming.civcraft.arena.Arena;
-import com.avrgaming.civcraft.arena.ArenaTeam;
 import com.avrgaming.civcraft.camp.Camp;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
@@ -662,20 +660,17 @@ public class Resident extends SQLObject {
 			if (grp.hasMember(this)) {
 				if (grp.getTown() != null) {
 					if (grp.isProtectedGroup()) {
-						out += CivColor.LightPurple;
-					} else {
-						out += CivColor.White;
+						out += CivColor.LightBlue;
+						} else {
+					out += CivColor.White;
 					}
 					out += grp.getName()+"("+grp.getTown().getName()+")";
-					
 				} else if (grp.getCiv() != null) {
-					out += CivColor.Gold+grp.getName()+"("+grp.getCiv().getName()+")";
+				out += CivColor.Gold+grp.getName()+"("+grp.getCiv().getName()+")";
 				}
-				
 				out += ", ";
-			} 
+			}
 		}
-		
 		return out;
 	}
 
@@ -848,6 +843,7 @@ public class Resident extends SQLObject {
 		return this.getTown().getCiv();
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void setScoreboardName(String name, String key) {
 		if (this.scoreboard == null) {
 			this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
@@ -1422,10 +1418,6 @@ public class Resident extends SQLObject {
 	}
 	
 	public boolean hasTechForItem(ItemStack stack) {
-		if (this.isInsideArena()) {
-			return true;
-		}
-		
 		LoreCraftableMaterial craftMat = LoreCraftableMaterial.getCraftMaterial(stack);
 		if (craftMat == null) {
 			return true;
@@ -1539,35 +1531,6 @@ public class Resident extends SQLObject {
 		this.usesAntiCheat = usesAntiCheat;
 	}
 	
-	public boolean hasTeam() {
-		ArenaTeam team = ArenaTeam.getTeamForResident(this);
-		if (team == null) {
-			return false;
-		}
-		return true;
-	}
-	
-	public ArenaTeam getTeam() {
-		ArenaTeam team = ArenaTeam.getTeamForResident(this);
-		if (team == null) {
-			return null;
-		}
-		return team;
-	}
-
-	public boolean isTeamLeader() {
-		ArenaTeam team = ArenaTeam.getTeamForResident(this);
-		if (team == null) {
-			return false;
-		}
-		
-		if (team.getLeader() == this) {
-			return true;
-		}
-		
-		return false;		
-	}
-	
 	public void saveInventory() {
 		try {
 			Player player = CivGlobal.getPlayer(this);			
@@ -1614,40 +1577,6 @@ public class Resident extends SQLObject {
 		this.savedInventory = savedInventory;
 	}
 
-	public Arena getCurrentArena() {
-		if (this.getTeam() == null) {
-			return null;
-		}
-		
-		return this.getTeam().getCurrentArena();
-	}
-	
-	public boolean isInsideArena() {
-		
-		if (!hasTeam()) {
-			this.insideArena = false;
-			return false;
-		}
-		
-		try {
-			Player player = CivGlobal.getPlayer(this);
-			
-			if (player.getWorld().getName().equals("world")) {
-				this.insideArena = false;
-				return false;
-			}
-			
-		} catch (CivException e) {
-			return false;
-		}
-		
-		return this.insideArena;
-	}
-	
-	public void setInsideArena(boolean inside) {
-		this.insideArena = inside;
-	}
-	
 	public boolean isProtected() {
 		return isProtected;
 	}

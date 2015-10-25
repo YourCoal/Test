@@ -1,21 +1,3 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.camp;
 
 import gpl.AttributeUtil;
@@ -98,7 +80,7 @@ public class Camp extends Buildable {
 	public static final double SHIFT_OUT = 2;
 	public static final String SUBDIR = "camp";
 	private boolean undoable = false;
-
+	
 	/* Locations that exhibit vanilla growth */
 	public HashSet<BlockCoord> growthLocations = new HashSet<BlockCoord>();
 	private boolean gardenEnabled = false;
@@ -125,7 +107,6 @@ public class Camp extends Buildable {
 	/* Doors we protect. */
 	public HashSet<BlockCoord> doors = new HashSet<BlockCoord>();
 	
-	
 	/* Control blocks */
 	public HashMap<BlockCoord, ControlPoint> controlBlocks = new HashMap<BlockCoord, ControlPoint>();
 	
@@ -135,9 +116,7 @@ public class Camp extends Buildable {
 	private HashMap<String, ConfigCampUpgrade> upgrades = new HashMap<String, ConfigCampUpgrade>();
 	
 	public static void newCamp(Resident resident, Player player, String name) {
-		
 		class SyncTask implements Runnable {
-			
 			Resident resident;
 			String name;
 			Player player;
@@ -167,7 +146,8 @@ public class Camp extends Buildable {
 					camp.setUndoable(true);
 					CivGlobal.addCamp(camp);
 					camp.save();
-				
+					
+					CivMessage.global(player.getName()+" created camp "+name+"!");
 					CivMessage.sendSuccess(player, "You have set up camp!");
 					ItemStack newStack = new ItemStack(Material.AIR);
 					player.setItemInHand(newStack);
@@ -177,12 +157,11 @@ public class Camp extends Buildable {
 				}
 			}
 		}
-		
 		TaskMaster.syncTask(new SyncTask(resident, name, player));
 	}
 	
 	public Camp(Resident owner, String name, Location corner) throws CivException {
-		this.ownerName = owner.getName();
+		this.ownerName = owner.getUUID().toString();
 		this.corner = new BlockCoord(corner);
 		try {
 			this.setName(name);
@@ -192,7 +171,6 @@ public class Camp extends Buildable {
 		}
 		nextRaidDate = new Date();
 		nextRaidDate.setTime(nextRaidDate.getTime() + 24*60*60*1000);
-
 		try {
 			this.firepoints = CivSettings.getInteger(CivSettings.campConfig, "camp.firepoints");
 			this.hitpoints = CivSettings.getInteger(CivSettings.campConfig, "camp.hitpoints");
@@ -230,12 +208,10 @@ public class Camp extends Buildable {
 				consumeComponent.setConsumes(lvl.level, lvl.consumes);
 			}
 			this.consumeComponent.onLoad();
-
 		} catch (InvalidConfiguration e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 	}
 	
 	public static final String TABLE_NAME = "CAMPS";
@@ -263,17 +239,12 @@ public class Camp extends Buildable {
 		}
 	}
 	
-	
 	@Override
 	public void load(ResultSet rs) throws SQLException, InvalidNameException,
 			InvalidObjectException, CivException {
 		this.setId(rs.getInt("id"));
 		this.setName(rs.getString("name"));
-		if (CivGlobal.useUUID) {
-			this.ownerName = CivGlobal.getResidentViaUUID(UUID.fromString(rs.getString("owner_name"))).getName();		
-		} else {
-			this.ownerName = rs.getString("owner_name");
-		}
+			this.ownerName = rs.getString("owner_name");		
 		this.corner = new BlockCoord(rs.getString("corner"));
 		this.nextRaidDate = new Date(rs.getLong("next_raid_date"));
 		this.setTemplateName(rs.getString("template_name"));
@@ -305,11 +276,7 @@ public class Camp extends Buildable {
 	public void saveNow() throws SQLException {
 		HashMap<String, Object> hashmap = new HashMap<String, Object>();
 		hashmap.put("name", this.getName());
-		if (CivGlobal.useUUID) {
-			hashmap.put("owner_name", this.getOwner().getUUIDString());		
-		} else {
-			hashmap.put("owner_name", this.getOwner().getName());
-		}
+			hashmap.put("owner_name", this.getOwner().getUUIDString());
 		hashmap.put("firepoints", this.firepoints);
 		hashmap.put("corner", this.corner.toString());
 		hashmap.put("next_raid_date", this.nextRaidDate.getTime());
@@ -744,10 +711,11 @@ public class Camp extends Buildable {
 			ItemStack token = LoreCraftableMaterial.spawn(craftMat);
 			
 			Tagged tag = (Tagged) craftMat.getComponent("Tagged");
-			token = tag.addTag(token, this.getOwnerName());
-	
+			Resident res = CivGlobal.getResidentViaUUID(UUID.fromString(this.getOwnerName()));
+			token = tag.addTag(token, res.getName());
+			
 			AttributeUtil attrs = new AttributeUtil(token);
-			attrs.addLore(CivColor.LightGray+this.getOwnerName());
+			attrs.addLore(CivColor.LightGray+res.getName());
 			token = attrs.getStack();
 			
 			mInv.addItem(token);
@@ -987,7 +955,6 @@ public class Camp extends Buildable {
 	
 	private void addCampBlock(BlockCoord coord, boolean friendlyBreakable) {
 		CampBlock cb = new CampBlock(coord, this, friendlyBreakable);
-		
 		this.campBlocks.put(coord, cb);
 		CivGlobal.addCampBlock(cb);
 	}
@@ -1013,15 +980,13 @@ public class Camp extends Buildable {
 	}
 
 	public Resident getOwner() {
-		return CivGlobal.getResident(ownerName);
+		return CivGlobal.getResidentViaUUID(UUID.fromString(ownerName));
 	}
-
-
+	
 	public void setOwner(Resident owner) {
-		this.ownerName = owner.getName();
+		this.ownerName = owner.getUUID().toString();
 	}
-
-
+	
 	public int getHitpoints() {
 		return hitpoints;
 	}
@@ -1030,23 +995,19 @@ public class Camp extends Buildable {
 	public void setHitpoints(int hitpoints) {
 		this.hitpoints = hitpoints;
 	}
-
-
+	
 	public int getFirepoints() {
 		return firepoints;
 	}
-
-
+	
 	public void setFirepoints(int firepoints) {
 		this.firepoints = firepoints;
 	}
-
-
+	
 	public BlockCoord getCorner() {
 		return corner;
 	}
-
-
+	
 	public void setCorner(BlockCoord corner) {
 		this.corner = corner;
 	}
@@ -1109,7 +1070,6 @@ public class Camp extends Buildable {
 	}
 
 	public void createControlPoint(BlockCoord absCoord) {
-		
 		Location centerLoc = absCoord.getLocation();
 		
 		/* Build the bedrock tower. */
@@ -1137,7 +1097,6 @@ public class Camp extends Buildable {
 		this.controlBlocks.put(coord, new ControlPoint(coord, this, campControlHitpoints));
 	}
 	
-	
 	public boolean isUndoable() {
 		return undoable;
 	}
@@ -1160,13 +1119,11 @@ public class Camp extends Buildable {
 	@Override
 	public void processUndo() throws CivException {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void updateBuildProgess() {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -1213,7 +1170,8 @@ public class Camp extends Buildable {
 	}
 
 	public String getOwnerName() {
-		return ownerName;
+		Resident res = CivGlobal.getResidentViaUUID(UUID.fromString(ownerName));
+		return res.getName();
 	}
 
 	public void setOwnerName(String ownerName) {

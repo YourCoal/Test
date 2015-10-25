@@ -45,11 +45,7 @@ commands:
         aliases:
     vote:
         aliases: [v]
-    trade:
-        aliases:
     kill:
-        aliases:
-    team:
         aliases:
     sb:
         aliases:

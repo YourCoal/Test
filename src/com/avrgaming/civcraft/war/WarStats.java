@@ -16,6 +16,7 @@ public class WarStats {
 	 * Stores player kills.
 	 */
 	private static HashMap<String, Integer> playerKills = new HashMap<String, Integer>();
+	private static HashMap<String, Integer> playerDeaths = new HashMap<String, Integer>();
 	
 	/*
 	 * Stores Captured Civs, who conquered whom.
@@ -37,6 +38,17 @@ public class WarStats {
 		}
 		
 		playerKills.put(playerName, kills);
+	}
+	
+	public static void incrementPlayerDeaths(String playerName) {
+		Integer deaths = playerDeaths.get(playerName);
+		if (deaths == null) {
+			deaths = 1;
+		} else {
+			deaths++;
+		}
+		
+		playerDeaths.put(playerName, deaths);
 	}
 	
 	public static void logCapturedTown(Civilization winner, Town captured) {
@@ -76,6 +88,21 @@ public class WarStats {
 		return CivColor.LightGreen+CivColor.BOLD+out+CivColor.LightGray+" ("+mostKills+" kills)";
 	}
 	
+	public static String getTopDeaths() {
+		
+		String out = "";
+		int mostDeaths = 0;
+		for (String playerName : playerDeaths.keySet()) {
+			int deaths = playerDeaths.get(playerName);
+			if (deaths > mostDeaths) {
+				out = playerName;
+				mostDeaths = deaths;
+			}
+		}
+		
+		return CivColor.LightGreen+CivColor.BOLD+out+CivColor.LightGray+" ("+mostDeaths+" Deaths)";
+	}
+	
 	public static List<String> getCapturedCivs() {
 		LinkedList<String> out = new LinkedList<String>();
 		
@@ -85,7 +112,7 @@ public class WarStats {
 				continue;
 			}
 			
-			String line = CivColor.LightGreen+CivColor.BOLD+key+CivColor.Rose+CivColor.BOLD+" Conquered: "+CivColor.RESET+CivColor.LightGray;
+			String line = CivColor.LightGreen+CivColor.BOLD+key+CivColor.Rose+CivColor.BOLD+" Conquered Civs: "+CivColor.RESET+CivColor.LightGray;
 			String tmp = "";
 			for (String str : conquered) {
 				tmp += str+", ";
@@ -98,8 +125,30 @@ public class WarStats {
 		return out;
 	}
 	
+	public static List<String> getCapturedTowns() {
+		LinkedList<String> out = new LinkedList<String>();
+		
+		for (String key : conqueredTowns.keySet()) {
+			LinkedList<String> conquered = conqueredTowns.get(key);
+			if (conquered == null) {
+				continue;
+			}
+			
+			String line = CivColor.LightGreen+CivColor.BOLD+key+CivColor.Rose+CivColor.BOLD+" Conquered Towns: "+CivColor.RESET+CivColor.LightGray;
+			String tmp = "";
+			for (String str : conquered) {
+				tmp += str+", ";
+			}
+			
+			line += tmp;
+			out.add(line);
+		}
+		return out;
+	}
+	
 	public static void clearStats() {
 		playerKills.clear();
+		playerDeaths.clear();
 		conqueredCivs.clear();
 		conqueredTowns.clear();
 	}

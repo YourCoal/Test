@@ -69,7 +69,7 @@ public class TheColossus extends Wonder {
 	protected void removeBuffs() {
 		int i = 0;
 		for (Entry<Double, Civilization> entry : nearestCivs.entrySet()) {			
-			this.removeBuffFromCiv(entry.getValue(), "debuff_colossus_leech_upkeep");
+			this.removeBuffFromCiv(entry.getValue(), "debuff:colossus_leech_upkeep");
 			i++;
 
 			if (i > 3) {
@@ -77,8 +77,8 @@ public class TheColossus extends Wonder {
 			}
 		}
 		
-		this.removeBuffFromTown(this.getTown(), "buff_colossus_reduce_upkeep");
-		this.removeBuffFromTown(this.getTown(), "buff_colossus_coins_from_culture");
+		this.removeBuffFromTown(this.getTown(), "buff:colossus_reduce_upkeep");
+		this.removeBuffFromTown(this.getTown(), "buff:colossus_coins_from_culture");
 	}
 
 	@Override
@@ -87,7 +87,7 @@ public class TheColossus extends Wonder {
 
 		int i = 0;
 		for (Entry<Double, Civilization> entry : nearestCivs.entrySet()) {			
-			this.addBuffToCiv(entry.getValue(), "debuff_colossus_leech_upkeep");
+			this.addBuffToCiv(entry.getValue(), "debuff:colossus_leech_upkeep");
 			i++;
 
 			if (i > 3) {
@@ -95,8 +95,8 @@ public class TheColossus extends Wonder {
 			}
 		}
 		
-		this.addBuffToTown(this.getTown(), "buff_colossus_reduce_upkeep");
-		this.addBuffToTown(this.getTown(), "buff_colossus_coins_from_culture");
+		this.addBuffToTown(this.getTown(), "buff:colossus_reduce_upkeep");
+		this.addBuffToTown(this.getTown(), "buff:colossus_coins_from_culture");
 		
 	}
 	

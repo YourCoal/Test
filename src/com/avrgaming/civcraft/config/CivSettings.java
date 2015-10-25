@@ -35,8 +35,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import net.minecraft.util.org.apache.commons.io.FileUtils;
-
+import org.apache.commons.io.FileUtils;
 import org.bukkit.Material;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -76,21 +75,6 @@ public class CivSettings {
 	public static final int CIV_DEBT_TOWN_SELL_DAYS = 21;
 	public static final int TOWN_DEBT_GRACE_DAYS = 7;
 	public static final int TOWN_DEBT_SELL_DAYS = 14;
-
-	
-	/* cached for faster access. */
-	//public static float leather_speed;
-	//public static float metal_speed;
-	public static float T1_leather_speed;
-	public static float T2_leather_speed;
-	public static float T3_leather_speed;
-	public static float T4_leather_speed;
-	public static float T1_metal_speed;
-	public static float T2_metal_speed;
-	public static float T3_metal_speed;
-	public static float T4_metal_speed;
-	public static float normal_speed;
-	public static double highjump;
 	
 	public static FileConfiguration townConfig; /* town.yml */
 	public static Map<Integer, ConfigTownLevel> townLevels = new HashMap<Integer, ConfigTownLevel>();
@@ -183,9 +167,6 @@ public class CivSettings {
 	public static FileConfiguration nocheatConfig; /* nocheatConfig.yml */
 	public static HashMap<String, ConfigValidMod> validMods = new HashMap<String, ConfigValidMod>();
 	
-	public static FileConfiguration arenaConfig; /* arenas.yml */
-	public static HashMap<String, ConfigArena> arenas = new HashMap<String, ConfigArena>();
-	
 	public static FileConfiguration fishingConfig; /* fishing.yml */
 	public static ArrayList<ConfigFishing> fishingDrops = new ArrayList<ConfigFishing>();
 		
@@ -200,6 +181,7 @@ public class CivSettings {
 	public static HashSet<Material> restrictedUndoBlocks = new HashSet<Material>();
 	public static boolean hasVanishNoPacket = false;
 	
+	public static final String HACKER = "civ.hacker";
 	public static final String MINI_ADMIN = "civ.admin";
 	public static final String MODERATOR = "civ.moderator";
 	public static final String FREE_PERKS = "civ.freeperks";
@@ -227,24 +209,11 @@ public class CivSettings {
 		Perk.init();
 		Unit.init();
 		
-		//CivSettings.leather_speed = (float)CivSettings.getDouble(CivSettings.unitConfig, "base.leather_speed");
-		//CivSettings.metal_speed = (float)CivSettings.getDouble(CivSettings.unitConfig, "base.metal_speed");
-		CivSettings.T1_leather_speed = (float)CivSettings.getDouble(CivSettings.unitConfig, "base.T1_leather_speed");
-		CivSettings.T2_leather_speed = (float)CivSettings.getDouble(CivSettings.unitConfig, "base.T2_leather_speed");
-		CivSettings.T3_leather_speed = (float)CivSettings.getDouble(CivSettings.unitConfig, "base.T3_leather_speed");
-		CivSettings.T4_leather_speed = (float)CivSettings.getDouble(CivSettings.unitConfig, "base.T4_leather_speed");
-		CivSettings.T1_metal_speed = (float)CivSettings.getDouble(CivSettings.unitConfig, "base.T1_metal_speed");
-		CivSettings.T2_metal_speed = (float)CivSettings.getDouble(CivSettings.unitConfig, "base.T2_metal_speed");
-		CivSettings.T3_metal_speed = (float)CivSettings.getDouble(CivSettings.unitConfig, "base.T3_metal_speed");
-		CivSettings.T4_metal_speed = (float)CivSettings.getDouble(CivSettings.unitConfig, "base.T4_metal_speed");
-		CivSettings.normal_speed = 0.2f;	
-		
 		for (Object obj : civConfig.getList("global.start_kit")) {
 			if (obj instanceof String) {
 				kitItems.add((String)obj);
 			}
 		}
-		
 		
 		CivGlobal.banWords.add("fuck");
 		CivGlobal.banWords.add("shit");
@@ -261,6 +230,7 @@ public class CivSettings {
 		emerald_rate = CivSettings.getDouble(civConfig, "ore_rates.emerald");
 		startingCoins = CivSettings.getDouble(civConfig, "global.starting_coins");
 		
+		alwaysCrumble.add(CivData.BEACON);
 		alwaysCrumble.add(CivData.BEDROCK);
 		alwaysCrumble.add(ItemManager.getId(Material.GOLD_BLOCK));
 		alwaysCrumble.add(ItemManager.getId(Material.DIAMOND_BLOCK));
@@ -360,7 +330,6 @@ public class CivSettings {
 		materialsConfig = loadCivConfig("materials.yml");
 		randomEventsConfig = loadCivConfig("randomevents.yml");
 		nocheatConfig = loadCivConfig("nocheat.yml");
-		arenaConfig = loadCivConfig("arena.yml");
 		fishingConfig = loadCivConfig("fishing.yml");
 	}
 
@@ -399,7 +368,6 @@ public class CivSettings {
 		ConfigEndCondition.loadConfig(civConfig, endConditions);
 		ConfigPlatinumReward.loadConfig(civConfig, platinumRewards);
 		ConfigValidMod.loadConfig(nocheatConfig, validMods);
-		ConfigArena.loadConfig(arenaConfig, arenas);
 		ConfigFishing.loadConfig(fishingConfig, fishingDrops);
 	
 		ConfigRemovedRecipes.removeRecipes(materialsConfig, removedRecipies );
@@ -589,7 +557,7 @@ public class CivSettings {
 
 	public static int getMaxNameLength() {
 		// TODO make this configurable?
-		return 32;
+		return 64;
 	}
 
 	public static String getNameCheckRegex() throws InvalidConfiguration {
@@ -623,7 +591,6 @@ public class CivSettings {
 				closestState = state;
 			}
 		}
-		
 		return closestState;
 	}
 	

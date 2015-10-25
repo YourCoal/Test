@@ -322,8 +322,8 @@ public class Bank extends Structure {
 		
 		double principal = this.getTown().getTreasury().getPrincipalAmount();
 		
-		if (this.getTown().getBuffManager().hasBuff("buff_greed")) {
-			double increase = this.getTown().getBuffManager().getEffectiveDouble("buff_greed");
+		if (this.getTown().getBuffManager().hasBuff("buff:greed")) {
+			double increase = this.getTown().getBuffManager().getEffectiveDouble("buff:greed");
 			effectiveInterestRate += increase;
 			CivMessage.sendTown(this.getTown(), CivColor.LightGray+"Your goodie buff 'Greed' has increased the interest our town generated.");
 		}

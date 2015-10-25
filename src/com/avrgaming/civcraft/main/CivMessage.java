@@ -29,8 +29,6 @@ import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.avrgaming.civcraft.arena.Arena;
-import com.avrgaming.civcraft.arena.ArenaTeam;
 import com.avrgaming.civcraft.camp.Camp;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Civilization;
@@ -234,15 +232,28 @@ public class CivMessage {
 			
 		}
 	}
-
-
+	
 	public static void send(CommandSender sender, List<String> outs) {
 		for (String str : outs) {
 			send(sender, str);
 		}
 	}
-
-
+	
+	public static void spyMissionGlobal(String string) {
+		CivLog.info("[Global] "+CivColor.Gray+"[Spy Director] "+string);
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			player.sendMessage(CivColor.LightBlue+"[Global] "+CivColor.Gray+"[Spy Director] "+CivColor.White+string);
+		}
+	}
+	
+	public static void spyMissionTown(Town town, String string) {
+		send(town, CivColor.Gray+"[Spy Director] "+CivColor.LightGray+string);
+	}
+	
+	public static void spyMission(CommandSender sender, String string) {
+		send(sender, CivColor.Gray+"[Spy Director] "+CivColor.LightGray+string);
+	}
+	
 	public static void sendTownChat(Town town, Resident resident, String format, String message) {
 		if (town == null) {
 			try {
@@ -412,17 +423,33 @@ public class CivMessage {
 	}
 
 	public static void sendTownSound(Town town, Sound sound, float f, float g) {
-		for (Resident resident : town.getResidents()) {
+		for (Resident resident : town.getOnlineResidents()) {
 			Player player;
 			try {
 				player = CivGlobal.getPlayer(resident);
-				
 				player.playSound(player.getLocation(), sound, f, g);
 			} catch (CivException e) {
 				//player not online.
 			}
 		}
-		
+	}
+	
+	public static void sendCivSound(Civilization civ, Sound sound, float f, float g) {
+		for (Resident resident : civ.getOnlineResidents()) {
+			Player player;
+			try {
+				player = CivGlobal.getPlayer(resident);
+				player.playSound(player.getLocation(), sound, f, g);
+			} catch (CivException e) {
+				//player not online.
+			}
+		}
+	}
+	
+	public static void sendGlobalSound(String string, Sound sound, float f, float g) {
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			player.playSound(player.getLocation(), sound, f, g);
+		}
 	}
 
 	public static void sendAll(String str) {
@@ -470,26 +497,4 @@ public class CivMessage {
 			return;
 		}
 	}
-
-	public static void sendTeam(ArenaTeam team, String message) {
-		for (Resident resident : team.teamMembers) {
-			CivMessage.send(resident, CivColor.Blue+"[Team ("+team.getName()+")] "+CivColor.RESET+message);
-		}
-	}
-	
-	public static void sendTeamHeading(ArenaTeam team, String message) {
-		for (Resident resident : team.teamMembers) {
-			CivMessage.sendHeading(resident, message);
-		}
-	}
-	
-	public static void sendArena(Arena arena, String message) {
-		CivLog.info("[Arena] "+message);
-		for (ArenaTeam team : arena.getTeams()) {
-			for (Resident resident : team.teamMembers) {
-				CivMessage.send(resident, CivColor.LightBlue+"[Arena] "+CivColor.RESET+message);
-			}
-		}
-	}
-	
 }
