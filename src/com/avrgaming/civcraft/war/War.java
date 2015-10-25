@@ -29,7 +29,6 @@ import java.util.List;
 import com.avrgaming.civcraft.camp.WarCamp;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.endgame.EndGameCondition;
-import com.avrgaming.civcraft.event.DisableTeleportEvent;
 import com.avrgaming.civcraft.event.EventTimer;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -148,8 +147,6 @@ public class War {
 	public static void setWarTime(boolean warTime) {
 		
 		if (warTime == false) {
-			/* Enable Teleporting. */
-			DisableTeleportEvent.enableTeleport();
 			/* War time has ended. */
 			War.setStart(null);
 			War.setEnd(null);
@@ -159,7 +156,6 @@ public class War {
 		
 			CivGlobal.growthEnabled = true;
 			CivGlobal.trommelsEnabled = true;
-			CivGlobal.quarriesEnabled = true;
 			CivGlobal.tradeEnabled = true;
 			
 			/* Delete any wartime file used to prevent reboots. */
@@ -169,27 +165,19 @@ public class War {
 			CivMessage.globalHeading(CivColor.BOLD+"WarTime Has Ended");
 			/* display some stats. */
 			CivMessage.global("Most Lethal: "+WarStats.getTopKiller());
-			CivMessage.global("Most Careless: "+WarStats.getTopDeaths());
 			List<String> civs = WarStats.getCapturedCivs();
-			List<String> towns = WarStats.getCapturedTowns();
 			if (civs.size() > 0) {
 				for (String str : civs) {
 					CivMessage.global(str);
 				}
-				if (towns.size() > 0) {
-					for (String str : towns) {
-						CivMessage.global(str);
-					}
 			}
 			WarStats.clearStats();
 			
 			for (Civilization civ : CivGlobal.getCivs()) {
 				civ.onWarEnd();
-				}
 			}
+			
 		} else {
-			/* Disable Teleporting. */
-			DisableTeleportEvent.disableTeleport();
 			/* War time has started. */
 			CivMessage.globalHeading(CivColor.BOLD+"WarTime Has Started");
 			War.setStart(new Date());
@@ -199,28 +187,28 @@ public class War {
 			WarAntiCheat.kickUnvalidatedPlayers();
 			
 			/* Put a flag on the filesystem to prevent cron reboots. */
-			File file1 = new File("wartime");
+			File file = new File("wartime");
 			try {
-				file1.createNewFile();
+				file.createNewFile();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 			
 			CivGlobal.growthEnabled = false;
 			CivGlobal.trommelsEnabled = false;
-			CivGlobal.quarriesEnabled = false;
 			CivGlobal.tradeEnabled = false;
 			
 			try {
 				int mins = CivSettings.getInteger(CivSettings.warConfig, "war.time_length");
 				Calendar endCal = Calendar.getInstance();
 				endCal.add(Calendar.MINUTE, mins);
-				
+
 				War.setEnd(endCal.getTime());
 			} catch (InvalidConfiguration e) {
 				e.printStackTrace();
 			}
 		}
+		
 		War.warTime = warTime;
 	}
 
@@ -381,6 +369,7 @@ public class War {
 	public static Date getStart() {
 		return start;
 	}
+
 	
 	/**
 	 * @param start the start to set

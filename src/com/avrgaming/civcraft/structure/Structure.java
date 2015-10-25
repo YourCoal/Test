@@ -87,20 +87,15 @@ public class Structure extends Buildable {
 				struct = (Structure) new Bank(rs);
 			}
 			break;
+		
 		case "s_trommel":
 			if (rs == null) {
 				struct = (Structure) new Trommel(center, id, town);
 			} else {
 				struct = (Structure) new Trommel(rs);
 			}
-			break;
-		case "ti_quarry":
-			if (rs == null) {
-				struct = (Structure) new Quarry(center, id, town);
-			} else {
-				struct = (Structure) new Quarry(rs);
-			}
-			break;
+			break;	
+			
 		case "s_store":
 			if (rs == null) {
 				struct = (Structure) new Store(center, id, town);
@@ -108,6 +103,7 @@ public class Structure extends Buildable {
 				struct = (Structure) new Store(rs);
 			}
 			break;
+		
 		case "s_grocer":
 			if (rs == null) {
 				struct = (Structure) new Grocer(center, id, town);
@@ -115,6 +111,7 @@ public class Structure extends Buildable {
 				struct = (Structure) new Grocer(rs);
 			}
 			break;
+			
 		case "s_library":
 			if (rs == null) {
 				struct = (Structure) new Library(center, id, town);
@@ -122,6 +119,7 @@ public class Structure extends Buildable {
 				struct = (Structure) new Library(rs);
 			}
 			break;	
+		
 		case "s_blacksmith":
 			if (rs == null) {
 				struct = (Structure) new Blacksmith(center, id, town);
@@ -129,6 +127,7 @@ public class Structure extends Buildable {
 				struct = (Structure) new Blacksmith(rs);
 			}
 			break;	
+			
 		case "s_granary":
 			if (rs == null) {
 				struct = (Structure) new Granary(center, id, town);

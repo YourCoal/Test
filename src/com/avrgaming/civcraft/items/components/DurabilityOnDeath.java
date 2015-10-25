@@ -53,7 +53,7 @@ public class DurabilityOnDeath extends ItemComponent {
 			result.stack.setDurability((short)(result.stack.getDurability() + reduction));
 		} else {
 			result.destroyItem = true;
-		}
+		}		
 		
 		return result;
 	}

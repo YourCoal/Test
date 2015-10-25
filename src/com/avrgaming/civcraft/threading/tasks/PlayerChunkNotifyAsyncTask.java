@@ -1,3 +1,21 @@
+/*************************************************************************
+ * 
+ * AVRGAMING LLC
+ * __________________
+ * 
+ *  [2013] AVRGAMING LLC
+ *  All Rights Reserved.
+ * 
+ * NOTICE:  All information contained herein is, and remains
+ * the property of AVRGAMING LLC and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to AVRGAMING LLC
+ * and its suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from AVRGAMING LLC.
+ */
 package com.avrgaming.civcraft.threading.tasks;
 
 import java.util.Date;
@@ -26,7 +44,7 @@ public class PlayerChunkNotifyAsyncTask implements Runnable {
 	Location to;
 	String playerName;
 	
-	public static int BORDER_SPAM_TIMEOUT = 5000; //5 second border spam protection.
+	public static int BORDER_SPAM_TIMEOUT = 30000; //30 second border spam protection.
 	public static HashMap<String, Date> cultureEnterTimes = new HashMap<String, Date>();
 	
 	public PlayerChunkNotifyAsyncTask(Location from, Location to, String playerName) {
@@ -36,18 +54,21 @@ public class PlayerChunkNotifyAsyncTask implements Runnable {
 	}
 	
 	public static String getNotifyColor(CultureChunk toCc, Relation.Status status, Player player) {
+
 		String color = CivColor.White;
 		switch (status) {
 		case NEUTRAL:
 			if (toCc.getTown().isOutlaw(player.getName())) {
 				color = CivColor.Yellow;
 			}
+			
 			break;
 		case HOSTILE:
 			color = CivColor.Yellow;
 			break;
 		case WAR:
 			color = CivColor.Rose;
+
 			break;
 		case PEACE:
 			color = CivColor.LightBlue;
@@ -56,6 +77,7 @@ public class PlayerChunkNotifyAsyncTask implements Runnable {
 		case ALLY:
 			color = CivColor.Green;
 		}
+		
 		return color;
 	}
 	
@@ -71,22 +93,29 @@ public class PlayerChunkNotifyAsyncTask implements Runnable {
 			return "";
 		}
 		
-		if (town.getBuffManager().hasBuff("buff:hanging_gardens_regen")) {
+		if (town.getBuffManager().hasBuff("buff_hanging_gardens_regen")) {
 			Resident resident = CivGlobal.getResident(player);
 			if (resident != null && resident.getTown() == town) {
 				CivMessage.send(player, CivColor.Green+ChatColor.ITALIC+"You feel invigorated by the glorious hanging gardens.");
 			}
 		}
-		return CivColor.LightGray+"Entering "+CivColor.White+town.getName()+" "+town.getPvpString()+" ";
+		
+		if (!tc.isOutpost()) {
+			return CivColor.LightGray+"Entering "+CivColor.White+town.getName()+" "+town.getPvpString()+" ";
+		} else {
+			return CivColor.LightGray+"Entering Outpost of "+CivColor.White+town.getName()+" "+town.getPvpString()+" ";
+		}
 	}
 	
 	private void showPlotMoveMessage() {
+		
 		TownChunk fromTc = CivGlobal.getTownChunk(from);
 		TownChunk toTc = CivGlobal.getTownChunk(to);
 		CultureChunk fromCc = CivGlobal.getCultureChunk(from);
 		CultureChunk toCc = CivGlobal.getCultureChunk(to);
 		Camp toCamp = CivGlobal.getCampFromChunk(new ChunkCoord(to));
 		Camp fromCamp = CivGlobal.getCampFromChunk(new ChunkCoord(from));
+
 		Player player;
 		Resident resident;
 		try {
@@ -154,6 +183,7 @@ public class PlayerChunkNotifyAsyncTask implements Runnable {
 		if (resident.isShowInfo()) {
 			CultureChunk.showInfo(player);
 		}
+		
 	}
 	
 	private void onCultureEnter(CultureChunk toCc) {
@@ -187,17 +217,19 @@ public class PlayerChunkNotifyAsyncTask implements Runnable {
 			return;
 		}
 		lastMessageTime = now;
-		
+
 		cultureEnterTimes.put(borderSpamKey, lastMessageTime);
 		CivMessage.sendCiv(toCc.getCiv(), color+player.getDisplayName()+"("+relationName+") has entered our borders.");
 	}
-	
+
+
 	@Override
 	public void run() {		
 		showPlotMoveMessage();
 		showResidentMap();
 	}
-	
+
+
 	private void showResidentMap() {
 		Player player;
 		try {
@@ -215,4 +247,7 @@ public class PlayerChunkNotifyAsyncTask implements Runnable {
 			CivMessage.send(player, AsciiMap.getMapAsString(player.getLocation()));
 		}	
 	}
+	
+	
+
 }

@@ -72,14 +72,14 @@ public class GreatLibrary extends Wonder {
 	
 	@Override
 	protected void removeBuffs() {
-		this.removeBuffFromCiv(this.getCiv(), "buff:greatlibrary_extra_beakers");
-		this.removeBuffFromTown(this.getTown(), "buff:greatlibrary_double_tax_beakers");
+		this.removeBuffFromCiv(this.getCiv(), "buff_greatlibrary_extra_beakers");
+		this.removeBuffFromTown(this.getTown(), "buff_greatlibrary_double_tax_beakers");
 	}
 
 	@Override
 	protected void addBuffs() {
-		this.addBuffToCiv(this.getCiv(), "buff:greatlibrary_extra_beakers");
-		this.addBuffToTown(this.getTown(), "buff:greatlibrary_double_tax_beakers");
+		this.addBuffToCiv(this.getCiv(), "buff_greatlibrary_extra_beakers");
+		this.addBuffToTown(this.getTown(), "buff_greatlibrary_double_tax_beakers");
 	}
 	
 	

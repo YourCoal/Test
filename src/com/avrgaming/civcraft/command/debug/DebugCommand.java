@@ -101,7 +101,6 @@ import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.ChunkGenerateTask;
 import com.avrgaming.civcraft.threading.tasks.CultureProcessAsyncTask;
 import com.avrgaming.civcraft.threading.tasks.PostBuildSyncTask;
-import com.avrgaming.civcraft.threading.tasks.QuarryAsyncTask;
 import com.avrgaming.civcraft.threading.tasks.TradeGoodPostGenTask;
 import com.avrgaming.civcraft.threading.tasks.TrommelAsyncTask;
 import com.avrgaming.civcraft.threading.timers.DailyTimer;
@@ -170,7 +169,6 @@ public class DebugCommand extends CommandBase {
 		commands.put("camp", "Debugs camps.");
 		commands.put("blockinfo", "[x] [y] [z] shows block info for this block.");
 		commands.put("trommel", "[name] - turn on this town's trommel debugging.");
-		commands.put("quarry", "[name] - turn on this town's quarry debugging.");
 		commands.put("fakeresidents", "[town] [count] - Adds this many fake residents to a town.");
 		commands.put("clearresidents", "[town] - clears this town of it's random residents.");
 		commands.put("biomehere", "- shows you biome info where you're standing.");
@@ -208,6 +206,18 @@ public class DebugCommand extends CommandBase {
 		commands.put("saveinv", "save an inventory");
 		commands.put("restoreinv", "restore your inventory.");
 		commands.put("arenainfo", "Shows arena info for this player.");
+	}
+	
+	public void arenainfo_cmd() throws CivException {
+		Resident resident = getResident();
+		String arenaName = "";
+		
+		if (resident.getTeam() != null && resident.getTeam().getCurrentArena() != null) {
+			arenaName = resident.getTeam().getCurrentArena().getInstanceName();
+		}
+		
+		
+		CivMessage.send(sender, "InsideArena:"+resident.isInsideArena()+" Team Active arena:"+arenaName);
 	}
 	
 	public void saveinv_cmd() throws CivException {
@@ -813,17 +823,8 @@ public class DebugCommand extends CommandBase {
 		} else {
 			TrommelAsyncTask.debugTowns.add(town.getName());
 		}
+		
 		CivMessage.send(sender, "Trommel toggled.");
-	}
-	
-	public void quarry_cmd() throws CivException {
-		Town town = getNamedTown(1);
-		if (QuarryAsyncTask.debugTowns.contains(town.getName())) {
-			QuarryAsyncTask.debugTowns.remove(town.getName());
-		} else {
-			QuarryAsyncTask.debugTowns.add(town.getName());
-		}
-		CivMessage.send(sender, "Quarry toggled.");
 	}
 	
 	public void blockinfo_cmd() throws CivException {
@@ -834,6 +835,7 @@ public class DebugCommand extends CommandBase {
 		Block b = Bukkit.getWorld("world").getBlockAt(x,y,z);
 		
 		CivMessage.send(sender, "type:"+ItemManager.getId(b)+" data:"+ItemManager.getData(b)+" name:"+b.getType().name());
+		
 	}
 	
 	public void camp_cmd() {
@@ -868,7 +870,6 @@ public class DebugCommand extends CommandBase {
 		CivMessage.send(sender, out);
 	}
 	
-	@SuppressWarnings("deprecation")
 	public void refreshchunk_cmd() throws CivException {
 		Player you = getPlayer();
 		ChunkCoord coord = new ChunkCoord(you.getLocation());

@@ -52,25 +52,25 @@ public class TheGreatPyramid extends Wonder {
 	
 	@Override
 	protected void addBuffs() {
-		addBuffToTown(this.getTown(), "buff:pyramid_cottage_consume");
-		addBuffToTown(this.getTown(), "buff:pyramid_cottage_bonus");
-		addBuffToCiv(this.getCiv(), "buff:pyramid_culture");
-		addBuffToTown(this.getTown(), "buff:pyramid_leech");
+		addBuffToTown(this.getTown(), "buff_pyramid_cottage_consume");
+		addBuffToTown(this.getTown(), "buff_pyramid_cottage_bonus");
+		addBuffToCiv(this.getCiv(), "buff_pyramid_culture");
+		addBuffToTown(this.getTown(), "buff_pyramid_leech");
 		Civilization nearest = calculateNearestCivilization();
 		if (nearest != null) {
-			addBuffToCiv(nearest, "debuff:pyramid_leech");
+			addBuffToCiv(nearest, "debuff_pyramid_leech");
 		}
 	}
 	
 	@Override
 	protected void removeBuffs() {
-		removeBuffFromTown(this.getTown(), "buff:pyramid_cottage_consume");
-		removeBuffFromTown(this.getTown(), "buff:pyramid_cottage_bonus");
-		removeBuffFromCiv(this.getCiv(), "buff:pyramid_culture");
-		removeBuffFromTown(this.getTown(), "buff:pyramid_leech");
+		removeBuffFromTown(this.getTown(), "buff_pyramid_cottage_consume");
+		removeBuffFromTown(this.getTown(), "buff_pyramid_cottage_bonus");
+		removeBuffFromCiv(this.getCiv(), "buff_pyramid_culture");
+		removeBuffFromTown(this.getTown(), "buff_pyramid_leech");
 		Civilization nearest = calculateNearestCivilization();
 		if (nearest != null) {
-			removeBuffFromCiv(nearest, "debuff:pyramid_leech");
+			removeBuffFromCiv(nearest, "debuff_pyramid_leech");
 		}
 	}
 	

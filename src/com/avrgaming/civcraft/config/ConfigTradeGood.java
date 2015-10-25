@@ -88,6 +88,8 @@ public class ConfigTradeGood implements Comparable<ConfigTradeGood> {
 			if (good.rarity == null) {
 				good.rarity = 1.0;
 			}
+
+			
 			waterGoods.put(good.id, good);
 			goods.put(good.id, good);
 		}

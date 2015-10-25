@@ -65,4 +65,5 @@ public class RandomEventSweeper implements Runnable {
 	public static void register(RandomEvent randomEvent) {
 		events.add(randomEvent);
 	}
+
 }

@@ -55,11 +55,14 @@ public class WindmillStartSyncTask implements Runnable {
 			cc.setFromLocation(windmill.getCorner().getLocation());
 		}
 		
+		
 		if (snapshots.size() == 0) {
 			return;
 		}
 		
 		/* Fire off an async task to do some post processing. */
 		TaskMaster.asyncTask("", new WindmillPreProcessTask(windmill, snapshots), 0);
+				
 	}
+
 }

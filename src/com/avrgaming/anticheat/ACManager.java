@@ -33,7 +33,7 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.threading.tasks.PlayerKickBan;
+import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.TimeTools;
 import com.avrgaming.civcraft.war.War;
 import com.avrgaming.civcraft.war.WarAntiCheat;
@@ -50,6 +50,7 @@ public class ACManager implements PluginMessageListener {
 	public static void init() {
         Bukkit.getMessenger().registerOutgoingPluginChannel(CivCraft.getPlugin(), "CAC");
         Bukkit.getMessenger().registerIncomingPluginChannel(CivCraft.getPlugin(), "CAC", new ACManager());
+        
         try {
 			versionNumber = CivSettings.getString(CivSettings.nocheatConfig, "civcraft_ac_version");
 			key = CivSettings.getString(CivSettings.nocheatConfig, "civcraft_ac_key");
@@ -58,6 +59,7 @@ public class ACManager implements PluginMessageListener {
 			if (enabledString != null && enabledString.equalsIgnoreCase("false")) {
 				enabled = false;
 			}
+			
 			decrypted = new byte[32768];
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
@@ -67,6 +69,7 @@ public class ACManager implements PluginMessageListener {
 	private static void generateIvSpec(Player player, ByteBuffer buffer) {
 		Random rand = new Random();
 		long r = rand.nextLong();
+		
 		ivSpecs.put(player.getName(), Long.valueOf(r));
 		buffer.putLong(r);
 	}
@@ -77,6 +80,10 @@ public class ACManager implements PluginMessageListener {
 		}
 	}
 	
+	
+	/*
+	 * Sends a CivCraftAC challenge packet to the player.
+	 */
 	public static void sendChallenge(Player player) {
 		class SyncTask implements Runnable {
 			String name;
@@ -99,9 +106,11 @@ public class ACManager implements PluginMessageListener {
 				}
 			}
 		}
-		TaskMaster.syncTask(new SyncTask(player.getName()), TimeTools.toTicks(2));
+		
+		TaskMaster.syncTask(new SyncTask(player.getName()), TimeTools.toTicks(3));
 		
 		if (War.isWarTime() && !player.isOp()) {
+			
 			class WarCheckTask implements Runnable {
 				String name;
 				
@@ -118,40 +127,53 @@ public class ACManager implements PluginMessageListener {
 						if (!resident.isUsesAntiCheat()) {
 							WarAntiCheat.onWarTimePlayerCheck(resident);
 						}
+						
 					} catch (CivException e) {
 					}
+					
 				}
 			}
-			TaskMaster.syncTask(new WarCheckTask(player.getName()), TimeTools.toTicks(15));
+			
+			TaskMaster.syncTask(new WarCheckTask(player.getName()), TimeTools.toTicks(30));
 		}
 		
-		class HackerCheckTask implements Runnable {
-			String name;
-			
-			public HackerCheckTask(String name) {
-				this.name = name;
-			}
-			
-			@Override
-			public void run() {
-				try {
-					Player player = CivGlobal.getPlayer(name);
-					Resident resident = CivGlobal.getResident(player);
-					
-					if (resident != null && !resident.isUsesAntiCheat()) {
-						if (player.isOp() || player.hasPermission(CivSettings.MINI_ADMIN)) {
-							
-						} else if (player.hasPermission(CivSettings.HACKER)) {
-							TaskMaster.syncTask(new PlayerKickBan(player.getName(), true, false, "You must use AntiCheat to join this server."+
-									"Visit https://www.rapidegaming.com/ to get it."));
-						}
-					}
-				} catch (CivException e) {
+		Resident resident = CivGlobal.getResident(player);
+		if (resident != null && resident.isInsideArena()) {
+			class ArenaCheckTask implements Runnable {
+				String name;
+				
+				public ArenaCheckTask(String name) {
+					this.name = name;
 				}
+				
+				@Override
+				public void run() {
+					try {
+						Player player = CivGlobal.getPlayer(name);
+						Resident resident = CivGlobal.getResident(player);
+						
+						if (!resident.isUsesAntiCheat()) {
+							
+							/* Player is rejoining but doesnt have anti-cheat installed. */
+							resident.teleportHome();
+							resident.restoreInventory();
+							resident.setInsideArena(false);
+							resident.save();
+							
+							CivMessage.send(resident, CivColor.LightGray+"You've been teleported home since you cannot be inside an arena without anti-cheat.");
+						}
+						
+					} catch (CivException e) {
+					}
+					
+				}
+				
 			}
+			
+			TaskMaster.syncTask(new ArenaCheckTask(player.getName()), TimeTools.toTicks(30));
 		}
-		TaskMaster.syncTask(new HackerCheckTask(player.getName()), TimeTools.toTicks(5));
 	}
+
 	
 	@Override
 	public void onPluginMessageReceived(String channel, Player player, byte[] messageRaw) {
@@ -173,6 +195,8 @@ public class ACManager implements PluginMessageListener {
 		}
 		
 		IvParameterSpec ivSpec = new IvParameterSpec(ByteBuffer.allocate(8).putLong(iv).array());
+		// create the cipher with the algorithm you choose
+		// see javadoc for Cipher class for more info, e.g.
 		try {
 			Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5Padding");
 			cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
@@ -190,33 +214,28 @@ public class ACManager implements PluginMessageListener {
 		String decoded = "";
 		for (byte b : decrypted) {
 			if (b != 0) {
-				CivLog.debug("byte:"+b+" char:"+((char)b));
+				//CivLog.debug("byte:"+b+" char:"+((char)b));
 				decoded += (char)b;
 			}
 		}
-		
+				
 		try {
 			validate(player, decoded);
 			Resident resident = CivGlobal.getResident(player);
 			if (resident != null) {
 				resident.setUsesAntiCheat(true);
 			}
-			CivMessage.sendSuccess(player, "You've been validated by CivCraft Anti-Cheat");
-			return;
+			
 		} catch (CivException e) {
 			CivMessage.sendError(player, "[CivCraft Anti-Cheat] Couldn't Verify your client");
 			CivMessage.sendError(player, e.getMessage());
 			CivLog.info("Failed to validate player:"+player.getName()+" Message:"+e.getMessage());
 			//e.printStackTrace();
-			
-			if (player.isOp() || player.hasPermission(CivSettings.MINI_ADMIN)) {
-				
-			} else if (player.hasPermission(CivSettings.HACKER)) {
-				TaskMaster.syncTask(new PlayerKickBan(player.getName(), true, false, "You must use AntiCheat to join this server."+
-						"Visit https://www.rapidegaming.com/ to get it."));
-				}
 			return;
 		}
+		
+		
+		CivMessage.sendSuccess(player, "You've been validated by CivCraft Anti-Cheat");
 	}
 	
 	public void validate(Player player, String decodedMessage) throws CivException {
@@ -254,6 +273,7 @@ public class ACManager implements PluginMessageListener {
 			if (mod == null) {
 				throw new CivException("Unapproved Mod: "+modArray[0]+" ("+modArray[1]+")");
 			} else {
+				
 				boolean valid = false;
 				for (Long checksum : mod.checksums) {
 					if (Long.valueOf(modArray[1]).equals(checksum)){
@@ -270,9 +290,12 @@ public class ACManager implements PluginMessageListener {
 				}
 			}
 		}
+		
 	}
 
 	public static boolean isEnabled() {
 		return enabled;
 	}
+	
+	
 }

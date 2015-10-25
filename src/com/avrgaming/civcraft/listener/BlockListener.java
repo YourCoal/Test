@@ -23,8 +23,9 @@ import gpl.HorseModifier;
 import java.util.HashSet;
 import java.util.Random;
 
-import net.minecraft.server.v1_8_R3.NBTTagCompound;
+import net.minecraft.server.v1_7_R4.NBTTagCompound;
 
+import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.FireworkEffect.Type;
@@ -32,7 +33,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_7_R4.entity.CraftEntity;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Fireball;
@@ -49,6 +50,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
+import org.bukkit.event.block.BlockFormEvent;
+import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
@@ -117,7 +120,9 @@ import com.avrgaming.civcraft.util.ItemFrameStorage;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.war.War;
 import com.avrgaming.civcraft.war.WarRegen;
-import com.moblib.moblib.MobLib;
+import com.avrgaming.moblib.MobLib;
+
+
 
 public class BlockListener implements Listener {
 
@@ -480,7 +485,131 @@ public class BlockListener implements Listener {
 		}
 
 	}
-	
+
+     private final BlockFace[] faces = new BlockFace[] {
+			        BlockFace.DOWN,
+		            BlockFace.NORTH,
+		            BlockFace.EAST,
+		            BlockFace.SOUTH,
+		            BlockFace.WEST,		            
+		            BlockFace.SELF,
+		            BlockFace.UP
+	  };
+
+    public BlockCoord generatesCobble(int id, Block b)
+    {
+        int mirrorID1 = (id == CivData.WATER_RUNNING || id == CivData.WATER ? CivData.LAVA_RUNNING : CivData.WATER_RUNNING);
+        int mirrorID2 = (id == CivData.WATER_RUNNING || id == CivData.WATER ? CivData.LAVA : CivData.WATER);
+        for(BlockFace face : faces)
+        {
+            Block r = b.getRelative(face, 1);
+            if(ItemManager.getId(r) == mirrorID1 || ItemManager.getId(r) == mirrorID2)
+            {
+            	
+            	return new BlockCoord(r);
+            }
+        }
+        
+        return null;
+    }
+
+//    private static void destroyLiquidRecursive(Block source) {
+//    	//source.setTypeIdAndData(CivData.AIR, (byte)0, false);
+//    	NMSHandler nms = new NMSHandler();
+//    	nms.setBlockFast(source.getWorld(), source.getX(), source.getY(), source.getZ(), 0, (byte)0);
+//    	
+//    	for (BlockFace face : BlockFace.values()) {
+//    		Block relative = source.getRelative(face);
+//    		if (relative == null) {
+//    			continue;
+//    		}
+//    		
+//    		if (!isLiquid(relative.getTypeId())) {
+//    			continue;
+//    		}
+//    		
+//    		destroyLiquidRecursive(relative);
+//    	}
+//    }
+    
+//    private static boolean isLiquid(int id) {
+//    	return (id >= CivData.WATER && id <= CivData.LAVA);
+//    }
+    
+    private static HashSet<BlockCoord> stopCobbleTasks = new HashSet<BlockCoord>();
+	@EventHandler(priority = EventPriority.NORMAL)
+	public void OnBlockFromToEvent(BlockFromToEvent event) {
+		/* Disable cobblestone generators. */
+		int id = ItemManager.getId(event.getBlock());
+	    if(id >= CivData.WATER && id <= CivData.LAVA)
+	    {
+	        Block b = event.getToBlock();
+	        bcoord.setFromLocation(b.getLocation());
+
+	        int toid = ItemManager.getId(b);
+	        if(toid == 0)
+	        {
+	            BlockCoord other = generatesCobble(id, b);
+	        	if(other != null)
+	            {
+	            	//BlockCoord d = new BlockCoord(event.getToBlock());
+//	            	BlockCoord fromCoord = new BlockCoord(event.getBlock());
+	            	event.setCancelled(true);
+
+	            	class SyncTask implements Runnable {
+	            		BlockCoord block;
+
+	            		public SyncTask(BlockCoord block) {
+	            			this.block = block;
+	            		}
+
+						@Override
+						public void run() {
+							ItemManager.setTypeIdAndData(block.getBlock(), CivData.NETHERRACK, (byte)0, true);
+							stopCobbleTasks.remove(block);
+						}
+	            	}
+
+	            	if (!stopCobbleTasks.contains(other)) {
+	            		stopCobbleTasks.add(other);
+	            		TaskMaster.syncTask(new SyncTask(other), 2);
+	            	}
+
+//	            	if (!stopCobbleTasks.contains(fromCoord)) {
+//	            		stopCobbleTasks.add(fromCoord);
+//	            		TaskMaster.syncTask(new SyncTask(fromCoord));
+//	            	}
+	            }
+	        }
+	    }
+	}
+
+	@EventHandler(priority = EventPriority.NORMAL)
+	public void OnBlockFormEvent (BlockFormEvent event) {
+
+		/* Disable cobblestone generators. */
+		if (ItemManager.getId(event.getNewState()) == CivData.COBBLESTONE) {
+			ItemManager.setTypeId(event.getNewState(), CivData.GRAVEL);
+			return;
+		}
+
+		Chunk spreadChunk = event.getNewState().getChunk();
+		coord.setX(spreadChunk.getX());
+		coord.setZ(spreadChunk.getZ());
+		coord.setWorldname(spreadChunk.getWorld().getName());
+
+		TownChunk tc = CivGlobal.getTownChunk(coord);
+		if (tc == null) {
+			return;
+		}
+
+		if (tc.perms.isFire() == false) {
+			if(event.getNewState().getType() == Material.FIRE) {
+				event.setCancelled(true);
+			}
+		}
+	}
+
 	@EventHandler(priority = EventPriority.LOW)
 	public void OnBlockPlaceEvent(BlockPlaceEvent event) {
 		Resident resident = CivGlobal.getResident(event.getPlayer());
@@ -1092,13 +1221,6 @@ public class BlockListener implements Listener {
 						denyBreeding = true;
 					}
 					break;
-				case RABBIT:
-					if (inHand.getType().equals(Material.CARROT) ||
-						inHand.getType().equals(Material.GOLDEN_CARROT) ||
-						inHand.getType().equals(Material.YELLOW_FLOWER)) {
-						denyBreeding = true;
-					}
-					break;
 				default:
 					break;
 				}
@@ -1481,7 +1603,6 @@ public class BlockListener implements Listener {
 
 	}
 
-	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.HIGHEST) 
 	public void onBlockPistonRetractEvent(BlockPistonRetractEvent event) {
 		if (!allowPistonAction(event.getRetractLocation())) {

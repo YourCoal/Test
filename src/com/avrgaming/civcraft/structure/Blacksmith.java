@@ -44,7 +44,6 @@ import com.avrgaming.civcraft.lorestorage.LoreMaterial;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.StructureSign;
 import com.avrgaming.civcraft.object.Town;
@@ -59,9 +58,9 @@ import com.avrgaming.civcraft.util.TimeTools;
 
 public class Blacksmith extends Structure {
 	
-	private static final long COOLDOWN = 10;
+	private static final long COOLDOWN = 5;
 	//private static final double BASE_CHANCE = 0.8;
-	public static int SMELT_TIME_SECONDS = 3600*2;
+	public static int SMELT_TIME_SECONDS = 3600*3;
 	public static double YIELD_RATE = 1.25;
 	
 	private Date lastUse = new Date();
@@ -167,7 +166,7 @@ public class Blacksmith extends Structure {
 	}
 	
 	public String getkey(Player player, Structure struct, String tag) {
-		return player.getUniqueId().toString()+"_"+struct.getConfigId()+"_"+struct.getCorner().toString()+"_"+tag; 
+		return player.getName()+"_"+struct.getConfigId()+"_"+struct.getCorner().toString()+"_"+tag; 
 	}
 
 	public void saveItem(ItemStack item, String key) {
@@ -375,7 +374,7 @@ public class Blacksmith extends Structure {
 			throw new CivException ("Can only use the smelter if you are a town member.");
 		}
 		
-		String value = convertType(itemsInHand.getTypeId())+":"+(itemsInHand.getAmount()*Blacksmith.YIELD_RATE*(this.getTown().getBuffManager().getEffectiveDouble(Buff.POLISHING)*2)+80);
+		String value = convertType(itemsInHand.getTypeId())+":"+(itemsInHand.getAmount()*Blacksmith.YIELD_RATE);
 		String key = getkey(player, this, "smelt");
 		
 		// Store entry in session DB
@@ -441,8 +440,8 @@ public class Blacksmith extends Structure {
 				 
 				double timeLeft = ((double)Blacksmith.SMELT_TIME_SECONDS - (double)secondsBetween) / (double)60;
 				//Date finish = new Date(now+(secondsBetween*1000));
-				CivMessage.send(player, CivColor.Yellow+amount+" "+
-						CivData.getDisplayName(itemId)+": "+ df1.format(timeLeft) +" minutes remaining.");
+				CivMessage.send(player, CivColor.Yellow+"Stack of "+amount+" "+
+						CivData.getDisplayName(itemId)+" will be finished in "+ df1.format(timeLeft) +" minutes.");
 				continue;
 			}
 			

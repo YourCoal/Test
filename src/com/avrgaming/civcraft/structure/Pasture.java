@@ -68,7 +68,7 @@ public class Pasture extends Structure {
 	public boolean processMobBreed(Player player, EntityType type) {
 				
 		if (!this.isActive()) {
-			CivMessage.sendError(player, "Pasture is destroyed or currently building. Cannot breed right now.");
+			CivMessage.sendError(player, "Pasture is destroyed or currently building. Cannot breed yet.");
 			return false;
 		}
 		

@@ -1304,7 +1304,7 @@ public abstract class Buildable extends SQLObject {
 		}
 		
 		int regenRate = this.getRegenRate();
-		regenRate += this.getTown().getBuffManager().getEffectiveInt("buff:chichen_itza_regen_rate");
+		regenRate += this.getTown().getBuffManager().getEffectiveInt("buff_chichen_itza_regen_rate");
 		
 		if (regenRate != 0) {
 			if ((this.getHitpoints() != this.getMaxHitPoints()) && 

@@ -73,6 +73,8 @@ public class BookUtil {
 			}
 			page += line+"\n";			
 		}
+		
 		meta.addPage(page);
 	}
+	
 }

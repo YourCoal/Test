@@ -424,6 +424,7 @@ public class RandomEvent extends SQLObject {
 				removed.add(entry);
 				continue;
 			}
+			
 			hammerrate *= rate;
 		}
 		
@@ -431,9 +432,10 @@ public class RandomEvent extends SQLObject {
 		for (SessionEntry entry : removed) {
 			CivGlobal.getSessionDB().delete(entry.request_id, entry.key);
 		}
+		
 		return hammerrate;	
 	}
-	
+
 	public List<String> getMessages() {
 		return savedMessages;
 	}
@@ -461,6 +463,7 @@ public class RandomEvent extends SQLObject {
 		for (RandomEventComponent comp : this.actions.values()) {
 			comp.process();
 		}
+		
 		this.save();
 	}
 }

@@ -31,9 +31,7 @@ public class CivData {
 	public static final int WALL_SIGN = 68;
 	public static final int SIGN = 63;
 	public static final int CHEST = 54;
-	public static final int TRAPPED_CHEST = 146;
 	public static final int WOOD = 17;
-	public static final int PLANKS = 5;
 	public static final int LEAF = 18;
 	
 	
@@ -42,31 +40,9 @@ public class CivData {
 	public static final byte DATA_BIRCH = 2;
 	public static final byte DATA_JUNGLE = 3;
 	
-	public static final int AIR = 0;
-	
-	public static final int DIRT = 3;
-	public static final int COARSE_DIRT = 1;
-	public static final int PODZOL = 2;
-	
-	public static final int SAND = 12;
-	public static final int RED_SAND = 1;
-	
-	public static final int GRAVEL = 13;
 	
 	public static final int GOLD_ORE = 14;
 	public static final int IRON_ORE = 15;
-	public static final int COAL_ORE = 16;
-	
-	public static final int SPONGE = 19;
-	
-	public static final int LAPIS_ORE = 21;
-	
-	public static final int DIAMOND_ORE = 56;
-	
-	public static final int REDSTONE_ORE = 73;
-	
-	public static final int EMERALD_ORE = 129;
-	
 	public static final int IRON_INGOT = 265;
 	public static final int GOLD_INGOT = 266;
 	public static final int WATER = 9;
@@ -77,9 +53,10 @@ public class CivData {
 	public static final int LAVA = 11;
 	public static final int LAVA_RUNNING = 10;
 	public static final int COBBLESTONE = 4;
-	public static final int MOSS_STONE = 48;
 	public static final int EMERALD = 388;
 	public static final int DIAMOND = 264;
+	public static final int GRAVEL = 13;
+	public static final int AIR = 0;
 	public static final int DISPENSER = 23;
 	public static final int REDSTONE_DUST = 331;
 	public static final int WHEAT = 59;
@@ -101,10 +78,6 @@ public class CivData {
 	public static final int WATER_BUCKET = 326;
 	public static final int EMPTY_BUCKET = 325;
 	public static final int ENDER_PEARL = 368;
-	public static final int ENDER_CHEST = 130;
-	public static final int BEACON = 138;
-	
-	public static final int MONSTER_EGG = 383;
 	public static final String BOOK_UNDERLINE = "§n";
 	public static final String BOOK_BOLD = "§l";
 	public static final String BOOK_ITALIC = "§o";
@@ -117,33 +90,18 @@ public class CivData {
 	
 	public static final int ITEMFRAME = 389;
 	public static final int EMERALD_BLOCK = 133;
-	public static final int GOLD_BLOCK = 41;
-	public static final int DIAMOND_BLOCK = 57;
-	public static final int REDSTONE_BLOCK = 152;
-	public static final int LAPIS_BLOCK = 22;
-	public static final int COAL_BLOCK = 173;
 	public static final int WOOL = 35;
-	public static final int HAY_BALE = 170;
 	public static final byte DATA_WOOL_BLACK = 0xF;
 	public static final int COOKED_FISH = 350;
 	public static final int OBSIDIAN = 49;
 	public static final int FIRE = 51;
 	public static final int FISH_RAW = 349;
-	public static final int MUTTON_RAW = 423;
 	public static final int BREAD = 297;
 	public static final int GLOWSTONE = 89;
 	public static final int DYE = 351;
 	public static final int REDSTONE_TORCH_OFF = 75;
 	public static final int STONE_BRICK = 98;
-	public static final int PRISMARINE = 168;
-	public static final byte PRISMARINE_BRICKS = 0x1;
-	public static final byte DARK_PRISMARINE = 0x2;
-	public static final int ICE = 79;
-	public static final int SNOW = 80;
-	public static final int PACKED_ICE = 174;
-	public static final int SANDSTONE = 24;
-	public static final byte CHISELED_SANDSTONE = 0x1;
-	public static final byte SMOOTH_SANDSTONE = 0x2;
+
 	
 	public static final byte CHEST_NORTH = 0x2;
 	public static final byte CHEST_SOUTH = 0x3;
@@ -198,25 +156,12 @@ public class CivData {
 	public static final int COAL = ItemManager.getId(Material.COAL);
 	public static final int WOOD_DOOR = 64;
 	public static final int IRON_DOOR = 71;
-	public static final int SPRUCE_DOOR = 193;
-	public static final int BIRCH_DOOR = 194;
-	public static final int JUNGLE_DOOR = 195;
-	public static final int ACACIA_DOOR = 196;
-	public static final int DARK_OAK_DOOR = 197;
 	public static final int NETHERRACK = 87;
 	public static final int BOW = 261;
 	public static final int ANVIL = 145;
 	public static final int IRON_BLOCK = 42;
 	public static final int COBWEB = 30;
 	public static final int STONE = 1;
-	public static final int GRANITE = 1;
-	public static final int POLISHED_GRANITE = 2;
-	public static final int DIORITE = 3;
-	public static final int POLISHED_DIORITE = 4;
-	public static final int ANDESITE = 5;
-	public static final int POLISHED_ANDESITE = 6;
-	
-	
 	public static final short MUNDANE_POTION_DATA = 8192;
 	public static final short MUNDANE_POTION_EXT_DATA = 64;
 	public static final short THICK_POTION_DATA = 32;

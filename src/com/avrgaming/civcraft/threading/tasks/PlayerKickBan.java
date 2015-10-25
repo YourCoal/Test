@@ -57,4 +57,5 @@ public class PlayerKickBan implements Runnable {
 			player.kickPlayer(reason);
 		}
 	}
+
 }

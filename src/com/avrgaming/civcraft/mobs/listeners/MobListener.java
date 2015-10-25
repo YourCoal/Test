@@ -15,7 +15,7 @@ import org.bukkit.event.world.ChunkLoadEvent;
 
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.mobs.CommonCustomMob;
-import com.moblib.moblib.MobLib;
+import com.avrgaming.moblib.MobLib;
 
 public class MobListener implements Listener {
 
@@ -27,11 +27,13 @@ public class MobListener implements Listener {
 				e.remove();
 				return;
 			}
+			
 			if (e instanceof IronGolem) {
 				e.remove();
 				return;
 			}
 		}
+	
 	}
 	
 	@EventHandler(priority = EventPriority.NORMAL)
@@ -39,13 +41,16 @@ public class MobListener implements Listener {
 		if (!(event.getEntity() instanceof LivingEntity)) {
 			return;
 		}
+		
 		if (!MobLib.isMobLibEntity((LivingEntity) event.getEntity())) {
 			return;
 		}
+			
 		CommonCustomMob mob = CommonCustomMob.getCCM(event.getEntity());
 		if (mob != null) {
 			mob.onTarget(event);
 		}
+		
 	}
 	
 	@EventHandler(priority = EventPriority.NORMAL)
@@ -53,6 +58,7 @@ public class MobListener implements Listener {
 		if (!(event.getEntity() instanceof LivingEntity)) {
 			return;
 		}
+		
 		if (!MobLib.isMobLibEntity((LivingEntity) event.getEntity())) {
 			return;
 		}
@@ -60,7 +66,7 @@ public class MobListener implements Listener {
 		switch (event.getCause()) {
 		case SUFFOCATION:
 			Location loc = event.getEntity().getLocation();
-			int y = loc.getWorld().getHighestBlockAt(loc.getBlockX(), loc.getBlockZ()).getY()+5;
+			int y = loc.getWorld().getHighestBlockAt(loc.getBlockX(), loc.getBlockZ()).getY()+4;
 			loc.setY(y);
 			event.getEntity().teleport(loc);
 		case CONTACT:
@@ -92,4 +98,5 @@ public class MobListener implements Listener {
 			}
 		}
 	}
+	
 }

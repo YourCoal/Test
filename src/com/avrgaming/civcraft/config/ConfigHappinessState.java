@@ -31,6 +31,8 @@ public class ConfigHappinessState {
 			happy_level.coin_rate = (Double)cl.get("coin_rate");
 			happy_level.culture_rate = (Double)cl.get("culture_rate");
 			happy_level.hammer_rate = (Double)cl.get("hammer_rate");
+
+
 			happiness_states.put(happy_level.level, happy_level);
 			
 		}

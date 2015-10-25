@@ -90,12 +90,12 @@ public class Civilization extends SQLObject {
 	
 	private ConcurrentHashMap<String, Town> towns = new ConcurrentHashMap<String, Town>();
 	private ConfigGovernment government;
-	
+
 	private double baseBeakers = 1.0;	
-	
+
 	public static final int HEX_COLOR_MAX = 16777215;
 	public static final int HEX_COLOR_TOLERANCE = 40;
-	
+
 	/* Store information to display about last upkeep paid. */
 	public HashMap<String, Double> lastUpkeepPaidMap = new HashMap<String, Double>();
 	
@@ -120,7 +120,7 @@ public class Civilization extends SQLObject {
 	
 	public Civilization(String name, String capitolName, Resident leader) throws InvalidNameException {
 		this.setName(name);
-		this.leaderName = leader.getUUID().toString();
+		this.leaderName = leader.getName();
 		this.setCapitolName(capitolName);
 		
 		this.government = CivSettings.governments.get("gov_tribalism");		
@@ -188,11 +188,12 @@ public class Civilization extends SQLObject {
 	public void load(ResultSet rs) throws SQLException, InvalidNameException {
 		this.setId(rs.getInt("id"));
 		this.setName(rs.getString("name"));		
-		
-		String resUUID = rs.getString("leaderName");
-		@SuppressWarnings("unused")
-		Resident res = CivGlobal.getResidentViaUUID(UUID.fromString(resUUID));
-		leaderName = resUUID;
+
+		if (CivGlobal.useUUID) {
+			leaderName = CivGlobal.getResidentViaUUID(UUID.fromString(rs.getString("leaderName"))).getName();
+		} else {
+			leaderName = rs.getString("leaderName");		
+		}
 		
 		capitolName = rs.getString("capitolName");
 		setLeaderGroupName(rs.getString("leaderGroupName"));
@@ -243,7 +244,11 @@ public class Civilization extends SQLObject {
 	public void saveNow() throws SQLException {
 		HashMap<String, Object> hashmap = new HashMap<String, Object>();
 		hashmap.put("name", this.getName());
+		if (CivGlobal.useUUID) {
 			hashmap.put("leaderName", this.getLeader().getUUIDString());
+		} else {
+			hashmap.put("leaderName", leaderName);			
+		}
 		hashmap.put("capitolName", this.capitolName);
 		hashmap.put("leaderGroupName", this.getLeaderGroupName());
 		hashmap.put("advisersGroupName", this.getAdvisersGroupName());
@@ -399,11 +404,11 @@ public class Civilization extends SQLObject {
 	}
 
 	public Resident getLeader() {
-		return CivGlobal.getResidentViaUUID(UUID.fromString(leaderName));
+		return CivGlobal.getResident(leaderName);
 	}
 
 	public void setLeader(Resident leader) {
-		this.leaderName = leader.getUUID().toString();
+		this.leaderName = leader.getName();
 	}
 
 	@Override
@@ -485,13 +490,12 @@ public class Civilization extends SQLObject {
 			Player player, Location loc) throws CivException {
 		
 		ItemStack stack = player.getItemInHand();
+		/*
+		 * Verify we have the correct item somewhere in our inventory.
+		 */
 		LoreCraftableMaterial craftMat = LoreCraftableMaterial.getCraftMaterial(stack);
 		if (craftMat == null || !craftMat.hasComponent("FoundCivilization")) {
 			throw new CivException("You must be holding an item that can found a Civilization.");
-		}
-		
-		if (!loc.getWorld().getName().equals("World")) {
-			throw new CivException("Can only create towns in the overworld.");
 		}
 		
 		Civilization existCiv = CivGlobal.getCiv(name);
@@ -560,7 +564,8 @@ public class Civilization extends SQLObject {
 			CivGlobal.addCiv(civ);
 			ItemStack newStack = new ItemStack(Material.AIR);
 			player.setItemInHand(newStack);
-			CivMessage.global(player.getName()+" has founded the Civilization of "+civ.getName()+"! "+civ.getCapitolName()+" is the capitol!");
+			CivMessage.global("The Civilization of "+civ.getName()+" has been founded! "+civ.getCapitolName()+" is it's capitol!");
+			
 		} catch (InvalidNameException e) {
 			throw new CivException("The name of "+name+" is invalid, please choose another.");
 		} catch (SQLException e) {
@@ -674,7 +679,7 @@ public class Civilization extends SQLObject {
 					
 					for (Civilization civ : allies) {
 						for (Town t : civ.getTowns()) {
-							if(t.getBuffManager().hasBuff("buff:notre_dame_extra_war_penalty")) {
+							if(t.getBuffManager().hasBuff("buff_notre_dame_extra_war_penalty")) {
 								doublePenalty = true;
 								break;
 							}
@@ -993,7 +998,7 @@ public class Civilization extends SQLObject {
 	public void setBaseBeakers(double beakerRate) {
 		this.baseBeakers = beakerRate;
 	}
-	
+
 	public void addBeakers(double beakers) {
 		
 		if (beakers == 0) {
@@ -1008,7 +1013,9 @@ public class Civilization extends SQLObject {
 			this.addTech(this.getResearchTech());
 			this.setResearchProgress(0);
 			this.setResearchTech(null);
+			
 			this.save();
+			
 			return;
 		}
 		
@@ -1019,8 +1026,11 @@ public class Civilization extends SQLObject {
 				CivMessage.sendCiv(this, "Our civilizations research progress on "+getResearchTech().name+" is now "+percentageComplete+"% completed!");
 				lastTechPercentage = percentageComplete;
 			}
+			
 		}
+		
 		this.save();
+	
 	}
 
 	public void startTechnologyResearch(ConfigTech tech) throws CivException {		
@@ -1080,7 +1090,7 @@ public class Civilization extends SQLObject {
 		
 		boolean noanarchy = false;
 		for (Town t : this.getTowns()) {
-			if (t.getBuffManager().hasBuff("buff:noanarchy")) {
+			if (t.getBuffManager().hasBuff("buff_noanarchy")) {
 				noanarchy = true;
 				break;
 			}
@@ -1136,7 +1146,7 @@ public class Civilization extends SQLObject {
 			coins_per_beaker = CivSettings.getDouble(CivSettings.civConfig, "civ.coins_per_beaker");
 			
 			for (Town t : this.getTowns()) {
-				if (t.getBuffManager().hasBuff("buff:greatlibrary_double_tax_beakers")) {
+				if (t.getBuffManager().hasBuff("buff_greatlibrary_double_tax_beakers")) {
 					coins_per_beaker /= 2;
 				}
 			}
@@ -1675,14 +1685,17 @@ public class Civilization extends SQLObject {
 					return false;
 				}
 			}
+			
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 			return false;
 		}
+		
 		return true;
 	}
 
 	public void rename(String name) throws CivException, InvalidNameException {
+		
 		Civilization other = CivGlobal.getCiv(name);
 		if (other != null) {
 			throw new CivException("Already another civ with this name");
