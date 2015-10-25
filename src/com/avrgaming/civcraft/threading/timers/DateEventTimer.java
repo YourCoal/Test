@@ -36,9 +36,6 @@ public class DateEventTimer implements Runnable {
 		
 		/* Check for spawn regen. */
 		if (now.after(CivGlobal.getTodaysSpawnRegenDate())) {
-			
 		}
-		
 	}
-
 }

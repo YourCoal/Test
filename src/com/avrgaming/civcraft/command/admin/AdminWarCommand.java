@@ -55,7 +55,7 @@ public class AdminWarCommand extends CommandBase {
 			for (Player player : Bukkit.getOnlinePlayers()) {
 				Resident resident = CivGlobal.getResident(player);
 				
-				if (player.isOp() || player.hasPermission(CivSettings.MINI_ADMIN)) {
+				if (player.isOp() || player.hasPermission(CivSettings.STAFF)) {
 					CivMessage.send(sender, "Skipping "+player.getName()+" since he is OP or mini admin.");
 					continue;
 				}
@@ -66,7 +66,6 @@ public class AdminWarCommand extends CommandBase {
 					TaskMaster.syncTask(new PlayerKickBan(player.getName(), true, false, "Kicked: Only residents 'at war' can play right now."));
 				}	
 			}
-			
 			CivMessage.global("All players 'not at war' have been kicked and cannot rejoin.");
 		} else {
 			CivMessage.global("All players are now allowed to join again.");

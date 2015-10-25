@@ -1,21 +1,3 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.cache;
 
 import java.util.Collection;
@@ -32,7 +14,7 @@ import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.VanishNoPacketUtil;
 
 public class PlayerLocationCache {
-
+	
 	private BlockCoord coord;
 	private String name;
 	private Resident resident;
@@ -45,9 +27,8 @@ public class PlayerLocationCache {
 	public static PlayerLocationCache get(String name) {
 		return cache.get(name);
 	}
-		
+	
 	public static void add(Player player) {
-		
 		if (cache.containsKey(player.getName())) {
 			return;
 		}
@@ -67,7 +48,6 @@ public class PlayerLocationCache {
 		if (CivSettings.hasVanishNoPacket) {
 			pc.setVanished(VanishNoPacketUtil.isVanished(player));
 		}
-		
 		cache.put(pc.getName(), pc);
 	}
 	
@@ -76,7 +56,6 @@ public class PlayerLocationCache {
 	}
 	
 	public static void updateLocation(Player player) {
-		
 		PlayerLocationCache pc = get(player.getName());
 		if (pc == null) {
 			add(player);
@@ -85,7 +64,6 @@ public class PlayerLocationCache {
 		
 		pc.getCoord().setFromLocation(player.getLocation());
 		pc.setDead(player.isDead());
-		
 		Resident resident = CivGlobal.getResident(player);
 		if (resident != null) {
 			resident.onRoadTest(pc.getCoord(), player);
@@ -104,13 +82,11 @@ public class PlayerLocationCache {
 	
 	public static List<PlayerLocationCache> getNearbyPlayers(BlockCoord bcoord, double radiusSquared) {
 		LinkedList<PlayerLocationCache> list = new LinkedList<PlayerLocationCache>();
-		
 		for (PlayerLocationCache pc : cache.values()) {
 			if (pc.getCoord().distanceSquared(bcoord) < radiusSquared) {
 				list.add(pc);
 			}
 		}
-		
 		return list;
 	}
 	
@@ -138,7 +114,6 @@ public class PlayerLocationCache {
 		this.resident = resident;
 	}
 	
-	
 	@Override
 	public int hashCode() {
 		return name.hashCode();
@@ -152,22 +127,20 @@ public class PlayerLocationCache {
 		}
 		return false;
 	}
-
+	
 	public boolean isDead() {
 		return isDead;
 	}
-
+	
 	public void setDead(boolean isDead) {
 		this.isDead = isDead;
 	}
-
+	
 	public boolean isVanished() {
 		return vanished;
 	}
-
+	
 	public void setVanished(boolean vanished) {
 		this.vanished = vanished;
 	}
-
-
 }

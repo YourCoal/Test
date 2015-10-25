@@ -43,16 +43,16 @@ public class TheHangingGardens extends Wonder {
 
 	@Override
 	protected void addBuffs() {
-		addBuffToCiv(this.getCiv(), "buff_hanging_gardens_growth");
-		addBuffToCiv(this.getCiv(), "buff_hanging_gardens_additional_growth");
-		addBuffToTown(this.getTown(), "buff_hanging_gardens_regen");
+		addBuffToCiv(this.getCiv(), "buff:hanging_gardens_growth");
+		addBuffToCiv(this.getCiv(), "buff:hanging_gardens_additional_growth");
+		addBuffToTown(this.getTown(), "buff:hanging_gardens_regen");
 	}
 	
 	@Override
 	protected void removeBuffs() {
-		removeBuffFromCiv(this.getCiv(), "buff_hanging_gardens_growth");
-		removeBuffFromCiv(this.getCiv(), "buff_hanging_gardens_additional_growth");
-		removeBuffFromTown(this.getTown(), "buff_hanging_gardens_regen");
+		removeBuffFromCiv(this.getCiv(), "buff:hanging_gardens_growth");
+		removeBuffFromCiv(this.getCiv(), "buff:hanging_gardens_additional_growth");
+		removeBuffFromTown(this.getTown(), "buff:hanging_gardens_regen");
 	}
 	
 	@Override

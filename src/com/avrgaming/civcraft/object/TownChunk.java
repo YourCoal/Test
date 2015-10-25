@@ -53,7 +53,6 @@ public class TownChunk extends SQLObject {
 	 */
 	private double value;
 	private double price;
-	private boolean outpost;
 	
 	public PlotPermissions perms = new PlotPermissions();
 	
@@ -137,23 +136,14 @@ public class TownChunk extends SQLObject {
 		this.forSale = rs.getBoolean("for_sale");
 		this.value = rs.getDouble("value");
 		this.price = rs.getDouble("price");
-		this.outpost = rs.getBoolean("outpost");
 		
-		if (!this.outpost) {
 			try {
 				this.getTown().addTownChunk(this);
-			} catch (AlreadyRegisteredException e1) {
-				e1.printStackTrace();
-			}
-		} else {
-			try {
-				this.getTown().addOutpostChunk(this);
 			} catch (AlreadyRegisteredException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
-		
-	}
+			}
 
 	@Override
 	public void save() {
@@ -173,7 +163,6 @@ public class TownChunk extends SQLObject {
 		hashmap.put("for_sale", this.isForSale());
 		hashmap.put("value", this.getValue());
 		hashmap.put("price", this.getPrice());
-		hashmap.put("outpost", this.outpost);
 		
 		if (this.perms.getOwner() != null) {
 			hashmap.put("owner_id", this.perms.getOwner().getId());
@@ -222,8 +211,6 @@ public class TownChunk extends SQLObject {
 				}
 			}
 		}
-		
-		
 		return effectiveTownLevel.plot_cost;		
 	}
 
@@ -294,13 +281,6 @@ public class TownChunk extends SQLObject {
 				throw new CivException("Internal Error Occurred.");
 	
 			}
-		} else {
-			try {
-				town.addOutpostChunk(tc);
-			} catch (AlreadyRegisteredException e) {
-				e.printStackTrace();
-				throw new CivException("Internal Error Occurred.");
-			}
 		}
 		
 		Camp camp = CivGlobal.getCampFromChunk(coord);
@@ -309,7 +289,6 @@ public class TownChunk extends SQLObject {
 			camp.disband();
 		}
 		
-		tc.setOutpost(outpost);
 		tc.save();
 		town.withdraw(cost);			
 		CivGlobal.addTownChunk(tc);
@@ -415,8 +394,7 @@ public class TownChunk extends SQLObject {
 					this.getChunkCoord().getX() + offset[i][0], 
 					this.getChunkCoord().getZ() + offset[i][1]));
 			if (tc != null && 
-				tc.getTown() == this.getTown() && 
-				!tc.isOutpost()) {
+				tc.getTown() == this.getTown()) {
 				return true;
 			}
 		}
@@ -505,15 +483,11 @@ public class TownChunk extends SQLObject {
 
 		int[][] offset = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
 		
-		if (this.isOutpost()) {
-			return false;
-		}
-		
 		for (int i = 0; i < 4; i++) {
 			TownChunk next = CivGlobal.getTownChunk(new ChunkCoord(this.chunkLocation.getWorldname(), 
 					this.chunkLocation.getX() + offset[i][0], 
 					this.chunkLocation.getZ()+ offset[i][1]));
-			if (next == null || next.isOutpost()) { 
+			if (next == null) { 
 				return true;
 			}
 		}
@@ -522,11 +496,8 @@ public class TownChunk extends SQLObject {
 	}
 
 	public static void unclaim(TownChunk tc) throws CivException {
-		
 		//TODO check that its not the last chunk
 		//TODO make sure that its not owned by someone else.
-		
-		
 		
 		tc.getTown().removeTownChunk(tc);
 		try {
@@ -535,17 +506,5 @@ public class TownChunk extends SQLObject {
 			e.printStackTrace();
 			throw new CivException("Internal database error.");
 		}
-		
 	}
-
-	public boolean isOutpost() {
-		return outpost;
-	}
-
-	public void setOutpost(boolean outpost) {
-		this.outpost = outpost;
-	}
-
-
-
 }

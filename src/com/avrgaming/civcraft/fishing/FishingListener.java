@@ -22,6 +22,8 @@ import com.avrgaming.civcraft.util.ItemManager;
 
 public class FishingListener implements Listener {
 	
+	public String message = "You caught a fish!";
+	
 	public ArrayList<ConfigFishing> getRandomDrops() {
 		Random rand = new Random();		
 		ArrayList<ConfigFishing> dropped = new ArrayList<ConfigFishing>();
@@ -76,7 +78,6 @@ public class FishingListener implements Listener {
 					 }
 				 }
 			 }
-			 
 			 player.updateInventory();
 		 }
 	 }

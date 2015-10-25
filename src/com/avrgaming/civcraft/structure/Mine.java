@@ -63,7 +63,13 @@ public class Mine extends Structure {
 		
 	@Override
 	public String getDynmapDescription() {
-		return null;
+		if (getConsumeComponent() == null) {
+			return "";
+		}
+		
+		String out = "";
+		out += "Level: "+getConsumeComponent().getLevel()+" "+getConsumeComponent().getCountString();
+		return out;
 	}
 	
 	@Override
@@ -79,7 +85,6 @@ public class Mine extends Structure {
 	}
 	
 	public Result consume(CivAsyncTask task) throws InterruptedException {
-		
 		//Look for the mine's chest.
 		if (this.getChests().size() == 0)
 			return Result.STAGNATE;	
@@ -145,7 +150,6 @@ public class Mine extends Structure {
 	public double getHammersPerTile() {
 		AttributeBiomeRadiusPerLevel attrBiome = (AttributeBiomeRadiusPerLevel)this.getComponent("AttributeBiomeRadiusPerLevel");
 		double base = attrBiome.getBaseValue();
-	
 		double rate = 1;
 		rate += this.getTown().getBuffManager().getEffectiveDouble(Buff.ADVANCED_TOOLING);
 		return (rate*base);
@@ -157,7 +161,6 @@ public class Mine extends Structure {
 
 	public int getMaxCount() {
 		int level = getLevel();
-		
 		ConfigMineLevel lvl = CivSettings.mineLevels.get(level);
 		return lvl.count;	
 	}
@@ -166,4 +169,12 @@ public class Mine extends Structure {
 		return this.getConsumeComponent().getLastResult();
 	}
 
+	public void delevel() {
+		int currentLevel = getLevel();
+		if (currentLevel > 1) {
+			getConsumeComponent().setLevel(getLevel()-1);
+			getConsumeComponent().setCount(0);
+			getConsumeComponent().onSave();
+		}
+	}
 }

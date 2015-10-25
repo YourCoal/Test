@@ -50,8 +50,6 @@ public class FoundTown extends ItemComponent implements CallbackInterface {
 		if (resident == null || !resident.hasTown()) {
 			throw new CivException("You are not part of a civilization.");
 		}
-		
-
 	}
 	
 	public void onInteract(PlayerInteractEvent event) {
@@ -100,14 +98,11 @@ public class FoundTown extends ItemComponent implements CallbackInterface {
 			return;
 		}
 		Resident resident = CivGlobal.getResident(playerName);
-		
 		CivMessage.sendHeading(player, "Founding A New Town");
 		CivMessage.send(player, CivColor.LightGreen+"This looks like a good place to settle!");
 		CivMessage.send(player, " ");
 		CivMessage.send(player, CivColor.LightGreen+ChatColor.BOLD+"What shall your new Town be called?");
 		CivMessage.send(player, CivColor.LightGray+"(To cancel, type 'cancel')");
-		
 		resident.setInteractiveMode(new InteractiveTownName());		
 	}
-
 }

@@ -13,7 +13,7 @@ public class TutorialBook extends ItemComponent {
 
 	@Override
 	public void onPrepareCreate(AttributeUtil attrs) {
-		attrs.addLore(CivColor.Gold+"CivCraft Info");
+		attrs.addLore(CivColor.Gold+"Town Guide Book");
 		attrs.addLore(CivColor.Rose+"<Right Click to Open>");
 	}
 

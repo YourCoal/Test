@@ -25,7 +25,6 @@ import java.util.Date;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Arrow;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -55,11 +54,10 @@ import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
+import com.avrgaming.civcraft.camp.Camp;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigTechPotion;
-import com.avrgaming.civcraft.items.units.Unit;
 import com.avrgaming.civcraft.items.units.UnitItemMaterial;
 import com.avrgaming.civcraft.items.units.UnitMaterial;
 import com.avrgaming.civcraft.lorestorage.LoreMaterial;
@@ -69,8 +67,8 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.mobs.timers.MobSpawnerTimer;
 import com.avrgaming.civcraft.object.CultureChunk;
+import com.avrgaming.civcraft.object.Relation;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.road.Road;
 import com.avrgaming.civcraft.structure.Capitol;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.PlayerChunkNotifyAsyncTask;
@@ -117,66 +115,67 @@ public class PlayerListener implements Listener {
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerTeleportEvent(PlayerTeleportEvent event) {
+		//Handle Teleportation Things here!
 		if (event.getCause().equals(TeleportCause.COMMAND) ||
-				event.getCause().equals(TeleportCause.PLUGIN)) {
+				event.getCause().equals(TeleportCause.PLUGIN)) {	
 			CivLog.info("[TELEPORT] "+event.getPlayer().getName()+" to:"+event.getTo().getBlockX()+","+event.getTo().getBlockY()+","+event.getTo().getBlockZ()+
 					" from:"+event.getFrom().getBlockX()+","+event.getFrom().getBlockY()+","+event.getFrom().getBlockZ());
-		}
-	}
-		
-	private void setModifiedMovementSpeed(Player player) {
-		/* Change move speed based on armor. */
-		double speed = CivSettings.normal_speed;
-		
-		/* Set speed from armor. */
-		if (Unit.isWearingFullComposite(player)) {
-			speed *= CivSettings.T4_leather_speed;
-		}
-		
-		if (Unit.isWearingFullHardened(player)) {
-			speed *= CivSettings.T3_leather_speed;
-		}
-		
-		if (Unit.isWearingFullRefined(player)) {
-			speed *= CivSettings.T2_leather_speed;
-		}
-		
-		if (Unit.isWearingFullBasicLeather(player)) {
-			speed *= CivSettings.T1_leather_speed;
-		}
-		
-		if (Unit.isWearingAnyIron(player)) {
-			speed *= CivSettings.T1_metal_speed;
-		}
-		
-		if (Unit.isWearingAnyChain(player)) {
-			speed *= CivSettings.T2_metal_speed;
-		}
-		
-		if (Unit.isWearingAnyGold(player)) {
-			speed *= CivSettings.T3_metal_speed;
-		}
-		
-		if (Unit.isWearingAnyDiamond(player)) {
-			speed *= CivSettings.T4_metal_speed;
-		}
-		
-		Resident resident = CivGlobal.getResident(player);
-		if (resident != null && resident.isOnRoad()) {	
-			if (player.getVehicle() != null && player.getVehicle().getType().equals(EntityType.HORSE)) {
-				Vector vec = player.getVehicle().getVelocity();
-				double yComp = vec.getY();
+			Player player = event.getPlayer();
+			if (!player.isOp() && !player.hasPermission("civ.admin")) {
+				CultureChunk cc = CivGlobal.getCultureChunk(new ChunkCoord(event.getTo()));
+				Camp toCamp = CivGlobal.getCampFromChunk(new ChunkCoord(event.getTo()));
+				Resident resident = CivGlobal.getResident(player);
+				if (cc != null && cc.getCiv() != resident.getCiv() && !cc.getCiv().isAdminCiv()) {
+					Relation.Status status = cc.getCiv().getDiplomacyManager().getRelationStatus(player);
+					if (status.equals(Relation.Status.HOSTILE)) {
+						if (!status.equals(Relation.Status.WAR)) {
+							/* 
+							 * Deny telportation into Civ if not allied.
+							 */
+							event.setTo(event.getFrom());
+							if (!event.isCancelled())
+							{
+								CivLog.debug("Cancelled Event "+event.getEventName()+" with cause: "+event.getCause());
+										event.setCancelled(true);
+								CivMessage.send(resident, "You are not allowed to teleport into the civilization ["+CivColor.Green+cc.getCiv().getName()+CivColor.White+"] because you are hostile or at war.");
+								return;
+							}
+						}
+					}
+				}
 				
-				vec.multiply(Road.ROAD_HORSE_SPEED);
-				vec.setY(yComp); /* Do not multiply y velocity. */
+				if (toCamp != null && toCamp != resident.getCamp()) {
+						/* 
+						 * Deny telportation into Civ if not allied.
+						 */
+					event.setTo(event.getFrom());
+						if (!event.isCancelled())
+						{
+							CivLog.debug("Cancelled Event "+event.getEventName()+" with cause: "+event.getCause());
+						event.setCancelled(true);
+							CivMessage.send(resident, CivColor.Red+"[Denied] "+CivColor.White+"You're not allowed to Teleport into Camp ["+CivColor.Green+toCamp.getName()+CivColor.White+"] unless you are a member of that camp.");
+							return;
+						}
+				}
 				
-				player.getVehicle().setVelocity(vec);
-			} else {
-				speed *= Road.ROAD_PLAYER_SPEED;
+//				if (War.isWarTime()) {
+//					
+//					if (toCamp != null && toCamp == resident.getCamp()) {
+//						return;
+//					}
+//					if (cc != null && (cc.getCiv() == resident.getCiv() || cc.getCiv().isAdminCiv())) {
+//						return;
+//					}
+//					
+//					event.setTo(event.getFrom());
+//					if (!event.isCancelled())
+//					{
+//					event.setCancelled(true);
+//						CivMessage.send(resident, CivColor.Red+"[Denied] "+CivColor.White+"You're not allowed to Teleport during War unless you are teleporting to your own Civ or Camp");
+//					}
+//				}
 			}
 		}
-		
-		player.setWalkSpeed((float) Math.min(1.0f, speed));
 	}
 	
 	@EventHandler(priority = EventPriority.LOW)
@@ -192,7 +191,6 @@ public class PlayerListener implements Listener {
 		
 		/* Test for enchants effecting movement. */
 		/* TODO can speed be set once? If so we should only calculate speed change when our armor changes. */
-		setModifiedMovementSpeed(event.getPlayer());
 				
 		ChunkCoord fromChunk = new ChunkCoord(event.getFrom());
 		ChunkCoord toChunk = new ChunkCoord(event.getTo());
@@ -209,15 +207,13 @@ public class PlayerListener implements Listener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerRespawn(PlayerRespawnEvent event) {
-		
 		Player player = event.getPlayer();
 		Resident resident = CivGlobal.getResident(player);
 		if (resident == null || !resident.hasTown()) {
 			return;
 		}
 		
-		if (War.isWarTime() && !resident.isInsideArena()) {
-			if (resident.getTown().getCiv().getDiplomacyManager().isAtWar()) {
+			if (resident.getTown().getCiv().getDiplomacyManager().isAtWar() && War.isWarTime()) {
 				//TownHall townhall = resident.getTown().getTownHall();
 				Capitol capitol = resident.getCiv().getCapitolStructure();
 				if (capitol != null) {
@@ -227,13 +223,9 @@ public class PlayerListener implements Listener {
 						resident.setLastKilledTime(new Date());
 						event.setRespawnLocation(respawn.getCenteredLocation());
 						CivMessage.send(player, CivColor.LightGray+"You've respawned in the War Room since it's WarTime and you're at war.");
-						
-						//TaskMaster.asyncTask("", reviveTask, 0);
-					}
 				}
 			}
 		}
-		
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -283,9 +275,22 @@ public class PlayerListener implements Listener {
 		if (War.isWarTime()) {
 			if (event.getEntity().getKiller() != null) {
 				WarStats.incrementPlayerKills(event.getEntity().getKiller().getName());
+				WarStats.incrementPlayerDeaths(event.getEntity().getName());
 			}
 		}
 	}
+	
+//XXX I NEED HALP
+//	@EventHandler(priority = EventPriority.HIGH)
+//	public void onDeath(PlayerDeathEvent event, Resident res) {
+//		if (res.getCiv().hasTechnology("tech_machinery")) {
+//			res.getTreasury().withdraw(0);
+//			CivMessage.send(res, "You have paid 0 coins for your death because you have health insurance.");
+//		} else {
+//			res.getTreasury().withdraw(100);
+//			CivMessage.send(res, "You have paid 100 coins for your death because you do not have health insurance!");
+//		}
+//	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST) 
 	public void onPortalCreate(PortalCreateEvent event) {

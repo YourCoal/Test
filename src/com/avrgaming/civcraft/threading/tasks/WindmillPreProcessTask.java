@@ -64,7 +64,7 @@ public class WindmillPreProcessTask extends CivAsyncTask {
 		/* Read in the source inventory's contents. Make sure we have seeds to plant. */
 		ArrayList<StructureChest> sources = windmill.getAllChestsById(0);
 		MultiInventory source_inv = new MultiInventory();
-
+		
 		for (StructureChest src : sources) {
 			try {
 				this.syncLoadChunk(src.getCoord().getWorldname(), src.getCoord().getX(), src.getCoord().getZ());

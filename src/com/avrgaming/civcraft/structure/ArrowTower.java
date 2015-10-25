@@ -62,8 +62,8 @@ public class ArrowTower extends Structure {
 	@Override
 	public int getMaxHitPoints() {
 		double rate = 1;
-		if (this.getTown().getBuffManager().hasBuff("buff_chichen_itza_tower_hp")) {
-			rate += this.getTown().getBuffManager().getEffectiveDouble("buff_chichen_itza_tower_hp");
+		if (this.getTown().getBuffManager().hasBuff("buff:chichen_itza_tower_hp")) {
+			rate += this.getTown().getBuffManager().getEffectiveDouble("buff:chichen_itza_tower_hp");
 			rate += this.getTown().getBuffManager().getEffectiveDouble(Buff.BARRICADE);
 		}
 		return (int) (info.max_hitpoints * rate);
@@ -92,6 +92,5 @@ public class ArrowTower extends Structure {
 
 	public void setTurretLocation(BlockCoord absCoord) {
 		arrowComponent.setTurretLocation(absCoord);
-	}	
-
+	}
 }

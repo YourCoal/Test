@@ -18,6 +18,8 @@
  */
 package com.avrgaming.civcraft.command.town;
 
+import java.util.UUID;
+
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -114,11 +116,10 @@ public class TownOutlawCommand extends CommandBase {
 		
 		String out = "";
 		for (String outlaw : town.outlaws) {
-			out += outlaw + ",";
+				Resident res = CivGlobal.getResidentViaUUID(UUID.fromString(outlaw));
+				out += res.getName()+",";
 		}
-		
 		CivMessage.send(sender, out);
-		
 	}
 	
 	@Override
@@ -135,5 +136,4 @@ public class TownOutlawCommand extends CommandBase {
 	public void permissionCheck() throws CivException {
 		validMayorAssistantLeader();
 	}
-
 }

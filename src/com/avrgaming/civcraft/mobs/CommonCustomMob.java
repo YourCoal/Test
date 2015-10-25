@@ -8,21 +8,21 @@ import java.util.LinkedList;
 import java.util.Random;
 import java.util.UUID;
 
-import net.minecraft.server.v1_7_R4.DamageSource;
-import net.minecraft.server.v1_7_R4.Entity;
-import net.minecraft.server.v1_7_R4.EntityCreature;
-import net.minecraft.server.v1_7_R4.EntityInsentient;
-import net.minecraft.server.v1_7_R4.EntityLiving;
-import net.minecraft.server.v1_7_R4.GenericAttributes;
-import net.minecraft.server.v1_7_R4.PathfinderGoalSelector;
+import net.minecraft.server.v1_8_R3.DamageSource;
+import net.minecraft.server.v1_8_R3.Entity;
+import net.minecraft.server.v1_8_R3.EntityCreature;
+import net.minecraft.server.v1_8_R3.EntityInsentient;
+import net.minecraft.server.v1_8_R3.EntityLiving;
+import net.minecraft.server.v1_8_R3.GenericAttributes;
+import net.minecraft.server.v1_8_R3.PathfinderGoalSelector;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
-import org.bukkit.craftbukkit.v1_7_R4.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_7_R4.util.UnsafeList;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_8_R3.util.UnsafeList;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityTargetEvent;
@@ -41,8 +41,8 @@ import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.war.War;
-import com.avrgaming.mob.ICustomMob;
-import com.avrgaming.mob.ISpawnable;
+import com.moblib.mob.ICustomMob;
+import com.moblib.mob.ISpawnable;
 
 public abstract class CommonCustomMob implements ICustomMob {
 
@@ -78,7 +78,7 @@ public abstract class CommonCustomMob implements ICustomMob {
 		
 		Field gsa;
 		try {
-			gsa = net.minecraft.server.v1_7_R4.EntityInsentient.class.getDeclaredField("goalSelector");
+			gsa = net.minecraft.server.v1_8_R3.EntityInsentient.class.getDeclaredField("goalSelector");
 			gsa.setAccessible(true);
 			return (PathfinderGoalSelector)gsa.get((EntityInsentient)entity);
 		} catch (NoSuchFieldException e) {
@@ -96,7 +96,7 @@ public abstract class CommonCustomMob implements ICustomMob {
 	public PathfinderGoalSelector getTargetSelector() {
 		Field gsa;
 		try {
-			gsa = net.minecraft.server.v1_7_R4.EntityInsentient.class.getDeclaredField("targetSelector");
+			gsa = net.minecraft.server.v1_8_R3.EntityInsentient.class.getDeclaredField("targetSelector");
 			gsa.setAccessible(true);
 			return (PathfinderGoalSelector)gsa.get((EntityInsentient)entity);
 		} catch (NoSuchFieldException e) {
@@ -114,17 +114,17 @@ public abstract class CommonCustomMob implements ICustomMob {
 	protected void initLevelAndType() {
 		this.setType(MobSpawner.CustomMobType.valueOf(getData("type")));
 		this.setLevel(MobSpawner.CustomMobLevel.valueOf(getData("level")));
-				
-		/* common drops. */
-		this.addVanillaDrop(ItemManager.getId(Material.BONE), (short)0, 0.1);
-		this.addVanillaDrop(ItemManager.getId(Material.SUGAR), (short)0, 0.1);
-		this.addVanillaDrop(ItemManager.getId(Material.SULPHUR), (short)0, 0.25);
+		
+		/* These are drops every mob will give. */
+		this.addVanillaDrop(ItemManager.getId(Material.RAW_BEEF), (short)0, 0.15);
+		this.addVanillaDrop(ItemManager.getId(Material.COAL), (short)0, 0.15);
 		this.addVanillaDrop(ItemManager.getId(Material.POTATO_ITEM), (short)0, 0.1);
 		this.addVanillaDrop(ItemManager.getId(Material.CARROT_ITEM), (short)0, 0.1);
-		this.addVanillaDrop(ItemManager.getId(Material.COAL), (short)0, 0.1);
-		this.addVanillaDrop(ItemManager.getId(Material.STRING), (short)0, 0.1);
-		this.addVanillaDrop(ItemManager.getId(Material.SLIME_BALL), (short)0, 0.02);
-
+		this.addVanillaDrop(ItemManager.getId(Material.SLIME_BALL), (short)0, 0.05);
+	    this.addDrop("civ:refined_fermented_spider_eye", 0.05);
+	    this.addDrop("civ:seasoned_golden_carrot", 0.05);
+	    this.addDrop("civ:refined_obsidian", 0.05);
+	    this.addDrop("civ:refined_sugar", 0.05);
 	}
 	
 	public Location getLocation(EntityLiving entity2) {
@@ -137,14 +137,13 @@ public abstract class CommonCustomMob implements ICustomMob {
 		System.out.println("Printing goals:");
 	    Field gsa;
 		try {
-			gsa = net.minecraft.server.v1_7_R4.PathfinderGoalSelector.class.getDeclaredField("b");
+			gsa = net.minecraft.server.v1_8_R3.PathfinderGoalSelector.class.getDeclaredField("b");
 			gsa.setAccessible(true);
 			//PathfinderGoalSelectorItem item;
 			UnsafeList<?> list = (UnsafeList<?>) gsa.get(goals);
 			for (Object obj : list) {
 				System.out.println("Obj:"+obj.toString());
 			}
-
 		} catch (NoSuchFieldException e) {
 			e.printStackTrace();
 		} catch (SecurityException e) {
@@ -154,34 +153,28 @@ public abstract class CommonCustomMob implements ICustomMob {
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
-		
-		
 	}
-
+	
 	@Override
 	public String getBaseEntity() {
 		return null;
 	}
-
+	
 	public void onCreate() {
 	}
-
-	public void onCreateAttributes() {
 	
+	public void onCreateAttributes() {
 	}
-
+	
 	public void onDamage(EntityCreature e, DamageSource damagesource, PathfinderGoalSelector goalSelector, PathfinderGoalSelector targetSelector) {
-
-		
 	}
-
+	
 	@Override
 	public void onDeath(EntityCreature arg0) {
 		dropItems();
 	}
-
+	
 	public void onRangedAttack(Entity arg1) {
-		
 	}
 	
 	private void checkForStuck() {
@@ -275,30 +268,29 @@ public abstract class CommonCustomMob implements ICustomMob {
 	
 	
 	public void setAttack(double attack) {
-		entity.getAttributeInstance(GenericAttributes.e).setValue(attack);
+		entity.getAttributeInstance(GenericAttributes.ATTACK_DAMAGE).setValue(attack);
 	}
 	
 	public void setMovementSpeed(double speed) {
-		entity.getAttributeInstance(GenericAttributes.d).setValue(speed);
+		entity.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).setValue(speed);
 	}
 	
 	public void setFollowRange(double range) {
-		entity.getAttributeInstance(GenericAttributes.b).setValue(range);
+		entity.getAttributeInstance(GenericAttributes.FOLLOW_RANGE).setValue(range);
 	}
 	
 	public double getFollowRange() {
 		double value;
 		try {
-			value = entity.getAttributeInstance(GenericAttributes.b).getValue();
+			value = entity.getAttributeInstance(GenericAttributes.FOLLOW_RANGE).getValue();
 		} catch (NullPointerException e) {
 			value = 32.0D;
 		}
-		
 		return value;
 	}
 	
 	public void modifySpeed(double percent) {
-		double speed = entity.getAttributeInstance(GenericAttributes.d).getValue();
+		double speed = entity.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).getValue();
 		speed *= percent;
 		setMovementSpeed(speed);
 	}
@@ -319,7 +311,7 @@ public abstract class CommonCustomMob implements ICustomMob {
 			if (entity == null) {
 				CivLog.info("Entity was null!");
 			}
-			CivLog.info("Speed:"+entity.getAttributeInstance(GenericAttributes.d).getValue());
+			CivLog.info("Speed:"+entity.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).getValue());
 			CivLog.info("MaxHealth:"+entity.getAttributeInstance(GenericAttributes.maxHealth).getValue()+" Health:"+entity.getHealth());
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -134,6 +134,10 @@ public class CultureChunk {
 		return getCultureBiomeInfo().happiness+getAdditionalAttributes(Attribute.TypeKeys.HAPPINESS.name());
 	}
 	
+	public double getSafety() {
+		return getCultureBiomeInfo().safety+getAdditionalAttributes(Attribute.TypeKeys.SAFETY.name());
+	}
+	
 	public double getHammers() {
 		//CivLog.debug("getting hammers...");
 		return getCultureBiomeInfo().hammers+getAdditionalAttributes(Attribute.TypeKeys.HAMMERS.name());
@@ -201,13 +205,10 @@ public class CultureChunk {
 					CivColor.Green+" Growth:"+CivColor.LightGreen+cc.getGrowth()+				
 					CivColor.Green+" Beakers:"+CivColor.LightGreen+cc.getBeakers());
 		}
-
 	}
 	
 	public static Biome getBiomeFromLocation(Location loc) {
 		Block block = loc.getChunk().getBlock(0, 0, 0);
 		return block.getBiome();
 	}
-	
-	
 }

@@ -12,6 +12,7 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.tutorial.CivTutorial;
+import com.avrgaming.civcraft.tutorial.TownBook;
 
 public class OpenInventory implements GuiAction {
 
@@ -40,6 +41,36 @@ public class OpenInventory implements GuiAction {
 				}
 				
 				switch (LoreGuiItem.getActionData(stack, "invType")) {
+				//Town Book
+				case "showGroupsInventory":
+					TownBook.showGroupsInventory(player);
+					break;
+				//XXX New Inventories
+				case "showleTutorialInventory":
+					CivTutorial.showleInventory(player);
+					break;
+				case "showStrucInfoTutorialInventory":
+					CivTutorial.showStrucInfoTutorialInventory(player);
+					break;
+				case "showTech1TutorialInventory":
+					CivTutorial.showTech1TutorialInventory(player);
+					break;
+				case "showTech2TutorialInventory":
+					CivTutorial.showTech2TutorialInventory(player);
+					break;
+				case "showStrucTutorialInventory":
+					CivTutorial.showStrucTutorialInventory(player);
+					break;
+				case "showWonderTutorialInventory":
+					CivTutorial.showWonderTutorialInventory(player);
+					break;
+				case "showMobTutorialInventory":
+					CivTutorial.showMobTutorialInventory(player);
+					break;
+				case "showAirInventory":
+					CivTutorial.showAirInventory(player);
+					break;
+				//XXX Original Ones
 				case "showTutorialInventory":
 					CivTutorial.showTutorialInventory(player);
 					break;
@@ -60,8 +91,6 @@ public class OpenInventory implements GuiAction {
 				}
 			}
 		}
-		
 		TaskMaster.syncTask(new SyncTaskDelayed(player.getName(), stack));		
 	}
-
 }

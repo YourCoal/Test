@@ -131,7 +131,6 @@ public class TradeGoodPopulator extends BlockPopulator {
     	/* 
     	 * Search downward to bedrock for any trade goodies here. If we find one, don't generate. 
     	 */
-    	
     	BlockCoord coord = new BlockCoord(worldName, centerX, centerY, centerZ);
     	for (int y = centerY; y > 0; y--) {
     		coord.setY(y);    		
@@ -146,7 +145,6 @@ public class TradeGoodPopulator extends BlockPopulator {
     
     @Override
 	public void populate(World world, Random random, Chunk source) {
-    	
     	ChunkCoord cCoord = new ChunkCoord(source);
     	TradeGoodPick pick = CivGlobal.preGenerator.goodPicks.get(cCoord);
     	if (pick != null) {
@@ -177,7 +175,5 @@ public class TradeGoodPopulator extends BlockPopulator {
 			// Create a copy and save it in the global hash table.
 			buildTradeGoodie(good, coord, world, false);
     	}
- 	
     }
-
 }

@@ -62,13 +62,12 @@ public class LoreEnhancementAttack extends LoreEnhancement {
 			attrs.addLore(getLoreString(baseLevel));
 			attrs.setName(attrs.getName()+CivColor.LightBlue+"(+"+amount+")");
 		}
-
+		
 		LoreCraftableMaterial craftMat = LoreCraftableMaterial.getCraftMaterialFromId(attrs.getCivCraftProperty("mid"));
 		if (craftMat == null) {
 			CivLog.warning("Couldn't find craft mat with MID of:"+attrs.getCivCraftProperty("mid"));
 			return attrs;
 		}
-
 		return attrs;
 	}
 	
@@ -81,8 +80,7 @@ public class LoreEnhancementAttack extends LoreEnhancement {
 		}
 		return 0;
 	}
-
-
+	
 	@Override
 	public boolean canEnchantItem(ItemStack item) {
 		return isWeapon(item);
@@ -96,7 +94,6 @@ public class LoreEnhancementAttack extends LoreEnhancement {
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 		}
-		
 		return getLevel(attrs);
 	}
 	
@@ -105,7 +102,7 @@ public class LoreEnhancementAttack extends LoreEnhancement {
 		AttributeUtil attrs = new AttributeUtil(stack);
 		return attrs.getEnhancementData("LoreEnhancementAttack", "level");
 	}
-
+	
 	@Override
 	public ItemStack deserialize(ItemStack stack, String data) {
 		AttributeUtil attrs = new AttributeUtil(stack);

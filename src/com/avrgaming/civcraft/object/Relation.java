@@ -1,21 +1,3 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.object;
 
 import java.sql.ResultSet;
@@ -37,19 +19,17 @@ public class Relation extends SQLObject {
 	private Civilization other_civ;
 	private Civilization aggressor_civ = null;
 	
-	/*
-	 * Relationships are going to be 1 per-civ pair. This should simplify things.
-	 */
 	public enum Status {
-		NEUTRAL,
-		HOSTILE,
 		WAR,
+		SKIRMISH,
+		HOSTILE,
+		NEUTRAL,
 		PEACE,
 		ALLY,
 //		MASTER,
 //		VASSAL
 	}
-
+	
 	private Status relation = Status.NEUTRAL;
 	private Date created = null;
 	private Date expires = null;
@@ -62,7 +42,6 @@ public class Relation extends SQLObject {
 		this.relation = status;
 		this.created = new Date();
 		this.expires = expires;
-		
 		this.save();
 	}
 	
@@ -72,7 +51,7 @@ public class Relation extends SQLObject {
 			civ.getDiplomacyManager().addRelation(this);
 		}
 	}
-
+	
 	public static void init() throws SQLException {
 		if (!SQL.hasTable(TABLE_NAME)) {
 			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME+" (" + 
@@ -115,12 +94,11 @@ public class Relation extends SQLObject {
 		} catch(IllegalArgumentException e) {
 			relation = Status.WAR;
 		}
-				
+			
 		int aggressor_id = rs.getInt("aggressor_civ_id");
 		if (aggressor_id != 0) {
 			setAggressor(CivGlobal.getCivFromId(aggressor_id));
 		}
-		
 		
 		Long createdLong = rs.getLong("created");
 		Long expiresLong = rs.getLong("expires");
@@ -133,7 +111,7 @@ public class Relation extends SQLObject {
 			expires = new Date(expiresLong);
 		}
 	}
-
+	
 	@Override
 	public void save() {
 		SQLUpdate.add(this);
@@ -142,7 +120,6 @@ public class Relation extends SQLObject {
 	@Override
 	public void saveNow() throws SQLException {
 		HashMap<String, Object> hashmap = new HashMap<String, Object>();
-		
 		hashmap.put("civ_id", civ.getId());
 		hashmap.put("other_civ_id", other_civ.getId());
 		hashmap.put("relation", relation.name());
@@ -161,42 +138,44 @@ public class Relation extends SQLObject {
 		} else {
 			hashmap.put("expires", 0);
 		}
-		
 		SQL.updateNamedObject(this, hashmap, TABLE_NAME);
 	}
-
+	
 	@Override
 	public void delete() throws SQLException {
 		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
-
+	
 	public Status getStatus() {
 		return relation;
 	}
-
+	
 	public Civilization getOtherCiv() {
 		return other_civ;
 	}
-
+	
 	public void setStatus(Status status) {
 		relation = status;
 		this.save();
 	}
-
+	
 	@Override
 	public String toString() {
 		String color = CivColor.White;
 		String out = "";
-		
 		out = relation.name()+CivColor.White+" with "+this.other_civ.getName();
 		switch (relation) {
-		case NEUTRAL:
+		case WAR:
+			color = CivColor.Rose;
+			break;
+		case SKIRMISH:
+			color = CivColor.LightPurple;
 			break;
 		case HOSTILE:
 			color = CivColor.Yellow;
 			break;
-		case WAR:
-			color = CivColor.Rose;
+		case NEUTRAL:
+			color = CivColor.White;
 			break;
 		case PEACE:
 			color = CivColor.LightBlue;
@@ -213,26 +192,24 @@ public class Relation extends SQLObject {
 //			out = "VASSAL"+CivColor.White+" to "+this.other_civ.getName();
 //			break;
 		}
-		
 		String expireString = "";
 		if (this.expires != null) {
 			SimpleDateFormat sdf = new SimpleDateFormat("M/d/y k:m:s z");
 			expireString = CivColor.LightGray+" (Expires "+sdf.format(expires)+")";
 		}
-		
 		return color+out+expireString;
-		
-		
 	}
 	
 	public static String getRelationColor(Status status) {
 		switch (status) {
-		case NEUTRAL:
-			return CivColor.White;
-		case HOSTILE:
-			return CivColor.Yellow;
 		case WAR:
 			return CivColor.Rose;
+		case SKIRMISH:
+			return CivColor.LightPurple;
+		case HOSTILE:
+			return CivColor.Yellow;
+		case NEUTRAL:
+			return CivColor.White;
 		case PEACE:
 			return CivColor.LightBlue;
 		case ALLY:
@@ -245,23 +222,23 @@ public class Relation extends SQLObject {
 			return CivColor.White;
 		}
 	}
-
+	
 	public Date getExpireDate() {
 		return expires;
 	}
-
+	
 	public void setExpires(Date expires2) {
 		this.expires = expires2;
 	}
-
+	
 	public Civilization getCiv() {
 		return civ;
 	}
-
+	
 	public Civilization getAggressor() {
 		return aggressor_civ;
 	}
-
+	
 	public void setAggressor(Civilization aggressor_civ) {
 		this.aggressor_civ = aggressor_civ;
 	}
@@ -277,6 +254,7 @@ public class Relation extends SQLObject {
 	 * 
 	 * where id1 is always less than id2.
 	 */
+	
 	public String getPairKey() {
 		String key = "";
 		
@@ -285,7 +263,6 @@ public class Relation extends SQLObject {
 		} else {
 			key += this.getOtherCiv().getId()+":"+this.getCiv().getId();
 		}
-		
 		return key;
 	}
 }

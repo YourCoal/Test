@@ -47,10 +47,10 @@ public class Road extends Structure {
 	private static double MAX_SEGMENT = 100;
 	private static final int WIDTH = 3;
 	private static final int RECURSION_LIMIT = 350;
-	public static double ROAD_PLAYER_SPEED = 1.5;
-	public static double ROAD_HORSE_SPEED = 1.1;
+	public static double ROAD_PLAYER_SPEED = 1.4;
+	public static double ROAD_HORSE_SPEED = 1.65;
 	public static double ROAD_COST_PER_SEGMENT = 1;
-	public static final int HEIGHT = 4;
+	public static final int HEIGHT = 5;
 	private Date nextRaidDate;
 	
 	private static final int ROAD_MATERIAL = CivData.COBBLESTONE;

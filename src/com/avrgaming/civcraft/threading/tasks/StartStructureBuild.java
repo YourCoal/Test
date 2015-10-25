@@ -60,5 +60,4 @@ public class StartStructureBuild implements Runnable {
 			e.printStackTrace();
 		}
 	}
-
 }

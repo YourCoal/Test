@@ -1,21 +1,3 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.command;
 
 import java.io.IOException;
@@ -140,11 +122,8 @@ public class BuildCommand extends CommandBase {
 		CivMessage.sendSuccess(player, nearest.getDisplayName()+" at "+nearest.getCorner()+" demolished.");
 	}
 	
-	
 	public void demolish_cmd() throws CivException {
 		Town town = getSelectedTown();
-		
-		
 		if (args.length < 2) {
 			CivMessage.sendHeading(sender, "Demolish Structure");
 			for (Structure struct : town.getStructures()) {
@@ -287,7 +266,6 @@ public class BuildCommand extends CommandBase {
 		CivMessage.sendSuccess(sender, "Showing preview.");
 	}
 	
-	
 	private void buildByName(String fullArgs) throws CivException {
 		ConfigBuildableInfo sinfo = CivSettings.getBuildableInfoByName(fullArgs);
 
@@ -314,13 +292,6 @@ public class BuildCommand extends CommandBase {
 				throw new CivException("Internal IO Error.");
 			}
 		}
-		
-//		if (sinfo.isWonder) {
-//			town.buildWonder(getPlayer(), sinfo.id, getPlayer().getLocation());
-//		} else {
-//			town.buildStructure(getPlayer(), sinfo.id, getPlayer().getLocation());
-//		}
-//		CivMessage.sendSuccess(sender, "Started building "+sinfo.displayName);
 	}
 
 	@Override
@@ -334,5 +305,4 @@ public class BuildCommand extends CommandBase {
 	public void permissionCheck() throws CivException {
 		validMayorAssistantLeader();
 	}
-
 }

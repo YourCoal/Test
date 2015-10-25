@@ -16,18 +16,18 @@ commands:
     deny:
         aliases: [no]
     civ:
-        aliases:
+        aliases: [c]
     tc:
         aliases:
     cc:
         aliases:
     ac:
         aliases:
+    build:
+        aliases: [b]
     gc:
         aliases:
     ad:
-        aliases:
-    build:
         aliases:
     market:
         aliases: [m]
@@ -45,11 +45,7 @@ commands:
         aliases:
     vote:
         aliases: [v]
-    trade:
-        aliases:
     kill:
-        aliases:
-    team:
         aliases:
     sb:
         aliases:

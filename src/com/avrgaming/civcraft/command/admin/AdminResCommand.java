@@ -56,9 +56,6 @@ public class AdminResCommand extends CommandBase {
 	public void rename_cmd() throws CivException {
 		Resident resident = getNamedResident(1);
 		String newName = getNamedString(2, "Enter a new name");
-
-		
-		
 		Resident newResident = CivGlobal.getResident(newName);
 		if (newResident != null) {
 			throw new CivException("Already another resident with the name:"+newResident.getName()+" cannot rename "+resident.getName());

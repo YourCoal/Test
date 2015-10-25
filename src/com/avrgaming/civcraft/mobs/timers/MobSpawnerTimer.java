@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
 
-import net.minecraft.server.v1_7_R4.EntityCreature;
+import net.minecraft.server.v1_8_R3.EntityCreature;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -23,15 +23,15 @@ import com.avrgaming.civcraft.util.ItemManager;
 
 public class MobSpawnerTimer implements Runnable {
 	
-	public static int UPDATE_LIMIT = 40;
-	public static int MOB_AREA_LIMIT = 5;
+	public static int UPDATE_LIMIT = 10;
+	public static int MOB_AREA_LIMIT = 25;
 	public static int MOB_AREA = 32;
 	
-	public static int MIN_SPAWN_DISTANCE = 20;
-	public static int MAX_SPAWN_DISTANCE = 50;
-	public static int MIN_SPAWN_AMOUNT = 5;
+	public static int MIN_SPAWN_DISTANCE = 16;
+	public static int MAX_SPAWN_DISTANCE = 32;
+	public static int MIN_SPAWN_AMOUNT = 4;
 	
-	public static int Y_SHIFT = 3;
+	public static int Y_SHIFT = 4;
 	
 	public static Queue<String> playerQueue = new LinkedList<String>();
 
@@ -60,7 +60,6 @@ public class MobSpawnerTimer implements Runnable {
 					if (random.nextBoolean()) {
 						x *= -1;
 					}
-					
 					int z = random.nextInt(MAX_SPAWN_DISTANCE)+MIN_SPAWN_DISTANCE;
 					if (random.nextBoolean()) {
 						z *= -1;
@@ -71,7 +70,6 @@ public class MobSpawnerTimer implements Runnable {
 					if (!loc.getChunk().isLoaded()) {
 						continue;
 					}
-					
 					
 					TownChunk tc = CivGlobal.getTownChunk(new ChunkCoord(loc));
 					if (tc != null) {
@@ -93,7 +91,6 @@ public class MobSpawnerTimer implements Runnable {
 						/* Dont spawn if we've reach the mob limit. */
 						continue;
 					}
-					
 					MobSpawner.spawnRandomCustomMob(loc);
 				}
 				break;
@@ -107,5 +104,4 @@ public class MobSpawnerTimer implements Runnable {
 			}
 		}
 	}
-
 }

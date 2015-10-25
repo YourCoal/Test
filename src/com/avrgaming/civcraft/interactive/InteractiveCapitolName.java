@@ -60,6 +60,7 @@ public class InteractiveCapitolName implements InteractiveResponse {
 		resident.desiredCapitolName = message;
 		CivMessage.send(player, CivColor.LightGreen+"The Civilization of "+CivColor.Yellow+resident.desiredCivName+
 				CivColor.LightGreen+"! And its capitol will be "+CivColor.Yellow+resident.desiredCapitolName+CivColor.LightGreen+"!");
+		setTimeout(60);
 		CivMessage.sendHeading(player, "Survey Results");
 		
 		class SyncTask implements Runnable {
@@ -89,12 +90,11 @@ public class InteractiveCapitolName implements InteractiveResponse {
 				CivMessage.send(player, CivColor.LightGreen+ChatColor.BOLD+"Are you sure? Type 'yes' and I will create this Civilization. Type anything else, and I will forget the whole thing.");
 				resident.setInteractiveMode(new InteractiveConfirmCivCreation());				
 			}
-		
 		}
-
 		TaskMaster.syncTask(new SyncTask(resident.getName())); 
-
 		return;
 	}
-
+	
+	private void setTimeout(int i) {
+	}
 }

@@ -1,21 +1,3 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.command.admin;
 
 import java.lang.reflect.InvocationTargetException;
@@ -65,11 +47,9 @@ public class AdminCommand extends CommandBase {
 		commands.put("perm", "toggles your permission overrides, if on, ignores all plot permissions.");
 		commands.put("sbperm", "Allows breaking of structure blocks");
 		commands.put("cbinstantbreak", "Allows instant breaking of control blocks.");
-
 		commands.put("recover", "Manage recovery commands");
 		commands.put("server", "shows the name of this server");
 		commands.put("spawnunit", "[unit-id] [town] spawn the unit with this id for this town.");
-
 		commands.put("chestreport", "[radius] check in this radius for chests");
 		commands.put("playerreport", "shows all player ender chest reports.");
 		
@@ -80,25 +60,34 @@ public class AdminCommand extends CommandBase {
 		commands.put("camp", "Shows camp management subcommands.");
 		commands.put("chat", "Manage admin chat options, tc, cc, listen etc");
 		commands.put("res", "Manage resident options, settown, setcamp etc");
-		commands.put("build", "Manage buildings. Demolish/repair wonders etc.");
 		commands.put("items", "Opens inventory which allows you to spawn in custom items.");
 		commands.put("item", "Does special things to the item in your hand.");
 		commands.put("timer", "Manage timers.");
-		commands.put("road", "Road management commands");
 		commands.put("clearendgame", "[key] [civ] - clears this end game condition for this civ.");
 		commands.put("endworld", "Starts the Apocalypse.");
-		commands.put("arena", "Arena management commands.");
 		commands.put("perk", "Admin perk management.");
 		commands.put("mob", "Mob management commands");
+		commands.put("sql", "SQL Settings. NEW. DO NOT TOUCH unless your name begins with Your and ends with Coal.");
+		commands.put("build", "Manage structures/wonders. Demolish/repair etc.");
+	}
+	
+	public void build_cmd() {
+		AdminBuildCommand cmd = new AdminBuildCommand();
+		cmd.onCommand(sender, null, "build", this.stripArgs(args, 1));
+	}
+	
+	public void sql_cmd() {
+		AdminSQLCommand cmd = new AdminSQLCommand();
+		cmd.onCommand(sender, null, "sql", this.stripArgs(args, 1));
 	}
 	
 	public void mob_cmd() {
-		AdminMobCommand cmd = new AdminMobCommand();	
+		AdminMobCommand cmd = new AdminMobCommand();
 		cmd.onCommand(sender, null, "mob", this.stripArgs(args, 1));
 	}
 	
 	public void perk_cmd() {
-		AdminPerkCommand cmd = new AdminPerkCommand();	
+		AdminPerkCommand cmd = new AdminPerkCommand();
 		cmd.onCommand(sender, null, "perk", this.stripArgs(args, 1));
 	}
 	
@@ -138,7 +127,6 @@ public class AdminCommand extends CommandBase {
 	public static Inventory spawnInventory = null; 
 	public void items_cmd() throws CivException {
 		Player player = getPlayer();
-		
 		if (spawnInventory == null) {
 			spawnInventory = Bukkit.createInventory(player, LoreGuiItem.MAX_INV_SIZE, "Admin Item Spawn");
 			
@@ -165,21 +153,8 @@ public class AdminCommand extends CommandBase {
 					LoreGuiItemListener.guiInventories.put(inv.getName(), inv);			
 				}
 			}
-			
-
 		}
-		
 		player.openInventory(spawnInventory);
-	}
-	
-	public void arena_cmd() {
-		AdminArenaCommand cmd = new AdminArenaCommand();	
-		cmd.onCommand(sender, null, "arena", this.stripArgs(args, 1));
-	}
-	
-	public void road_cmd() {
-		AdminRoadCommand cmd = new AdminRoadCommand();	
-		cmd.onCommand(sender, null, "camp", this.stripArgs(args, 1));
 	}
 	
 	public void item_cmd() {
@@ -340,11 +315,6 @@ public class AdminCommand extends CommandBase {
 		cmd.onCommand(sender, null, "war", this.stripArgs(args, 1));
 	}
 	
-	public void build_cmd() {
-		AdminBuildCommand cmd = new AdminBuildCommand();	
-		cmd.onCommand(sender, null, "war", this.stripArgs(args, 1));
-	}
-	
 	public void perm_cmd() throws CivException {
 		Resident resident = getResident();
 		
@@ -353,10 +323,8 @@ public class AdminCommand extends CommandBase {
 			CivMessage.sendSuccess(sender, "Permission override off.");
 			return;
 		}
-		
 		resident.setPermOverride(true);
 		CivMessage.sendSuccess(sender, "Permission override on.");
-		
 	}
 	
 	public void sbperm_cmd() throws CivException {
@@ -366,42 +334,34 @@ public class AdminCommand extends CommandBase {
 			CivMessage.sendSuccess(sender, "Structure Permission override off.");
 			return;
 		}
-		
 		resident.setSBPermOverride(true);
 		CivMessage.sendSuccess(sender, "Structure Permission override on.");
 	}
-	
-	
-
 	
 	@Override
 	public void doDefaultAction() throws CivException {
 		showHelp();
 	}
-
+	
 	@Override
 	public void showHelp() {
 		showBasicHelp();
 	}
-
+	
 	@Override
 	public void permissionCheck() throws CivException {
-		
 		if (sender instanceof Player) {
-			if (((Player)sender).hasPermission(CivSettings.MINI_ADMIN)) {
+			if (((Player)sender).hasPermission(CivSettings.ADMIN)) {
 				return;
 			}
 		}
-		
-		
 		if (sender.isOp() == false) {
 			throw new CivException("Only admins can use this command.");			
 		}
 	}
-
+	
 	@Override
 	public void doLogging() {
 		CivLog.adminlog(sender.getName(), "/ad "+this.combineArgs(args));
 	}
-	
 }

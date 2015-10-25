@@ -74,6 +74,8 @@ public class AdminTownCommand extends CommandBase {
 		commands.put("setmotherciv", "[town] [motherciv] - Changes the mother civ of this town.");
 		commands.put("sethappy", "[town] [amount] - Sets a magical base happiness for this town.");
 		commands.put("setunhappy", "[town] [amount] - sets a magical base unhappiness for this town.");
+		commands.put("setsafety", "[town] [amount] - Sets a magical base safety for this town.");
+		commands.put("setunsafety", "[town] [amount] - sets a magical base unsafety for this town.");
 		commands.put("event", "[town] [event_id] - Runs the named random event in this town.");
 		commands.put("rename", "[town] [new_name] - Renames this town.");
 	}
@@ -112,19 +114,29 @@ public class AdminTownCommand extends CommandBase {
 	public void setunhappy_cmd() throws CivException {
 		Town town = getNamedTown(1);
 		double happy = getNamedDouble(2);
-		
 		town.setBaseUnhappy(happy);
 		CivMessage.sendSuccess(sender, "Set unhappiness.");
-
 	}
 	
 	public void sethappy_cmd() throws CivException {
 		Town town = getNamedTown(1);
 		double happy = getNamedDouble(2);
-		
 		town.setBaseHappiness(happy);
 		CivMessage.sendSuccess(sender, "Set happiness.");
-
+	}
+	
+	public void setunsafety_cmd() throws CivException {
+		Town town = getNamedTown(1);
+		double safety = getNamedDouble(2);
+		town.setBaseUnsafety(safety);
+		CivMessage.sendSuccess(sender, "Set unsafety.");
+	}
+	
+	public void setsafety_cmd() throws CivException {
+		Town town = getNamedTown(1);
+		double safety = getNamedDouble(2);
+		town.setBaseSafety(safety);
+		CivMessage.sendSuccess(sender, "Set safety.");
 	}
 	
 	public void setmotherciv_cmd() throws CivException {

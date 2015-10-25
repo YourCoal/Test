@@ -59,23 +59,23 @@ public class NotreDame extends Wonder {
 	
 	@Override
 	protected void removeBuffs() {
-		this.removeBuffFromTown(this.getTown(), "buff_notre_dame_no_anarchy");
-		this.removeBuffFromTown(this.getTown(), "buff_notre_dame_coins_from_peace");
-		this.removeBuffFromTown(this.getTown(), "buff_notre_dame_extra_war_penalty");
+		this.removeBuffFromTown(this.getTown(), "buff:notre_dame_no_anarchy");
+		this.removeBuffFromTown(this.getTown(), "buff:notre_dame_coins_from_peace");
+		this.removeBuffFromTown(this.getTown(), "buff:notre_dame_extra_war_penalty");
 	}
 
 	@Override
 	protected void addBuffs() {
-		this.addBuffToTown(this.getTown(), "buff_notre_dame_no_anarchy");
-		this.addBuffToTown(this.getTown(), "buff_notre_dame_coins_from_peace");
-		this.addBuffToTown(this.getTown(), "buff_notre_dame_extra_war_penalty");
+		this.addBuffToTown(this.getTown(), "buff:notre_dame_no_anarchy");
+		this.addBuffToTown(this.getTown(), "buff:notre_dame_coins_from_peace");
+		this.addBuffToTown(this.getTown(), "buff:notre_dame_extra_war_penalty");
 
 	}
 
 	public void processPeaceTownCoins() {
 		double totalCoins = 0;
 		
-		double coinsPerTown = this.getTown().getBuffManager().getEffectiveInt("buff_notre_dame_coins_from_peace");
+		double coinsPerTown = this.getTown().getBuffManager().getEffectiveInt("buff:notre_dame_coins_from_peace");
 		
 		for (Civilization civ : CivGlobal.getCivs()) {
 			if (civ.isAdminCiv()) {

@@ -35,5 +35,4 @@ public class DelayItemDrop implements Runnable {
 	public void run() {
 		loc.getWorld().dropItem(loc, stack);
 	}
-
 }

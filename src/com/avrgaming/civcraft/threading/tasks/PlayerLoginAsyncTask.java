@@ -57,7 +57,6 @@ public class PlayerLoginAsyncTask implements Runnable {
 		if (player == null) {
 			throw new CivException("Player offline now. May have been kicked.");
 		}
-		
 		return player;
 	}
 	
@@ -65,7 +64,14 @@ public class PlayerLoginAsyncTask implements Runnable {
 	public void run() {
 		try {
 			CivLog.info("Running PlayerLoginAsyncTask for "+getPlayer().getName()+" UUID("+playerUUID+")");
-			Resident resident = CivGlobal.getResident(getPlayer().getName());
+				Resident resident = CivGlobal.getResidentViaUUID(playerUUID);
+				if (resident != null && !resident.getName().toLowerCase().equals(getPlayer().getName().toLowerCase()))
+				{
+					CivGlobal.removeResident(resident);
+					resident.setName(getPlayer().getName().toLowerCase());
+					resident.save();
+					CivGlobal.addResident(resident);
+				}
 			
 			/* 
 			 * Test to see if player has changed their name. If they have, these residents
@@ -124,7 +130,7 @@ public class PlayerLoginAsyncTask implements Runnable {
 			}
 					
 			if (War.isWarTime() && War.isOnlyWarriors()) {
-				if (getPlayer().isOp() || getPlayer().hasPermission(CivSettings.MINI_ADMIN)) {
+				if (getPlayer().isOp() || getPlayer().hasPermission(CivSettings.STAFF)) {
 					//Allowed to connect since player is OP or mini admin.
 				} else if (!resident.hasTown() || !resident.getTown().getCiv().getDiplomacyManager().isAtWar()) {
 					TaskMaster.syncTask(new PlayerKickBan(getPlayer().getName(), true, false, "Only players in civilizations at war can connect right now. Sorry."));
@@ -133,7 +139,8 @@ public class PlayerLoginAsyncTask implements Runnable {
 			}
 			
 			/* turn on allchat by default for admins and moderators. */
-			if (getPlayer().hasPermission(CivSettings.MODERATOR) || getPlayer().hasPermission(CivSettings.MINI_ADMIN)) {
+			if (getPlayer().hasPermission(CivSettings.STAFF) || getPlayer().hasPermission(CivSettings.ADMIN)
+					 || getPlayer().hasPermission(CivSettings.MINI_ADMIN)) {
 				resident.allchat = true;
 				Resident.allchatters.add(resident.getName());
 			}
@@ -180,7 +187,7 @@ public class PlayerLoginAsyncTask implements Runnable {
 				if (CivSettings.getString(CivSettings.perkConfig, "system.free_perks").equalsIgnoreCase("true")) {
 					resident.giveAllFreePerks();
 				} else if (CivSettings.getString(CivSettings.perkConfig, "system.free_admin_perks").equalsIgnoreCase("true")) {
-					if (getPlayer().hasPermission(CivSettings.MINI_ADMIN) || getPlayer().hasPermission(CivSettings.FREE_PERKS)) {
+					if (getPlayer().hasPermission(CivSettings.ADMIN) || getPlayer().hasPermission(CivSettings.PERK_LIST)) {
 						resident.giveAllFreePerks();
 					}
 				}
@@ -256,6 +263,9 @@ public class PlayerLoginAsyncTask implements Runnable {
 		} catch (CivException playerNotFound) {
 			// Player logged out while async task was running.
 			CivLog.warning("Couldn't complete PlayerLoginAsyncTask. Player may have been kicked while async task was running.");
+		} catch (InvalidNameException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 	

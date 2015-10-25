@@ -1,21 +1,3 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.structure;
 
 import java.io.IOException;
@@ -382,16 +364,12 @@ public abstract class Buildable extends SQLObject {
 	}
 	
 	public void buildPlayerPreview(Player player, Location centerLoc) throws CivException, IOException {
-		
-		/* Look for any custom template perks and ask the player if they want to use them. */
 		Resident resident = CivGlobal.getResident(player);
 		ArrayList<Perk> perkList = this.getTown().getTemplatePerks(this, resident, this.info);		
 		ArrayList<Perk> personalUnboundPerks = resident.getUnboundTemplatePerks(perkList, this.info);
 		if (perkList.size() != 0 || personalUnboundPerks.size() != 0) {
-			/* Store the pending buildable. */
 			resident.pendingBuildable = this;
 			
-			/* Build an inventory full of templates to select. */
 			Inventory inv = Bukkit.getServer().createInventory(player, CivTutorial.MAX_CHEST_SIZE*9);
 			ItemStack infoRec = LoreGuiItem.build("Default "+this.getDisplayName(), 
 					ItemManager.getId(Material.WRITTEN_BOOK), 
@@ -422,16 +400,11 @@ public abstract class Buildable extends SQLObject {
 				infoRec = LoreGuiItem.setActionData(infoRec, "perk", perk.getIdent());
 				
 			}
-			
-			/* We will resume by calling buildPlayerPreview with the template when a gui item is clicked. */
 			player.openInventory(inv);
 			return;
 		}
 		
-
-		
 		Template tpl;
-		
 		tpl = new Template();
 		try {
 			tpl.initTemplate(centerLoc, this);
@@ -442,38 +415,26 @@ public abstract class Buildable extends SQLObject {
 			e.printStackTrace();
 			throw e;
 		}
-		
 		buildPlayerPreview(player, centerLoc, tpl);
 	}
-	
 	
 	public void buildPlayerPreview(Player player, Location centerLoc, Template tpl) throws CivException, IOException {
 		centerLoc = repositionCenter(centerLoc, tpl.dir(), tpl.size_x, tpl.size_z);
 		tpl.buildPreviewScaffolding(centerLoc, player);
-		
 		this.setCorner(new BlockCoord(centerLoc));
-		
-		CivMessage.sendHeading(player, "Building a Structure");
+		CivMessage.sendHeading(player, "Building a Wonder");
 		CivMessage.send(player, CivColor.Yellow+ChatColor.BOLD+"We've placed a bedrock outline, only visible to you which outlines "+
 				" the structure's location.");
 		CivMessage.send(player, CivColor.LightGreen+ChatColor.BOLD+"If this location looks good, type 'yes'. Otherwise, type anything else to cancel building.");
 		Resident resident = CivGlobal.getResident(player);
 		resident.startPreviewTask(tpl, centerLoc.getBlock(), player.getUniqueId());
-		
-		/* Run validation on position. */
-		//validate(player, this, tpl, centerLoc, null);
 		this.templateName = tpl.getFilepath();
 		TaskMaster.asyncTask(new StructureValidator(player, this), 0);
 		resident.setInteractiveMode(new InteractiveBuildCommand(this.getTown(), this, player.getLocation(), tpl));
 	}
-
-	/*
-	 * This function is called before we build structures that do not have a town yet.
-	 * This includes Capitols, Camps, and Town Halls.
-	 */
+	
 	
 	public static void buildVerifyStatic(Player player, ConfigBuildableInfo info, Location centerLoc, CallbackInterface callback) throws CivException {
-	
 		Resident resident = CivGlobal.getResident(player);
 		/* Look for any custom template perks and ask the player if they want to use them. */
 		LinkedList<Perk> perkList = resident.getPersonalTemplatePerks(info);
@@ -1255,22 +1216,22 @@ public abstract class Buildable extends SQLObject {
 					Random rand = new Random();
 					
 					// Each block has a 10% chance to turn into gravel
-					if (rand.nextInt(100) <= 10) {
+					if (rand.nextInt(100) <= 25) {
 						ItemManager.setTypeId(coord.getBlock(), CivData.GRAVEL);
 						ItemManager.setData(coord.getBlock(), 0, true);
 						continue;
 					}
 					
 					// Each block has a 50% chance of starting a fire
-					if (rand.nextInt(100) <= 50) {
+					if (rand.nextInt(100) <= 25) {
 						ItemManager.setTypeId(coord.getBlock(), CivData.FIRE);
 						ItemManager.setData(coord.getBlock(), 0, true);
 						continue;
 					}
 					
 					// Each block has a 1% chance of launching an explosion effect
-					if (rand.nextInt(100) <= 1) {
-						FireworkEffect effect = FireworkEffect.builder().with(org.bukkit.FireworkEffect.Type.BURST).withColor(Color.ORANGE).withColor(Color.RED).withTrail().withFlicker().build();
+					if (rand.nextInt(100) <= 2) {
+						FireworkEffect effect = FireworkEffect.builder().with(org.bukkit.FireworkEffect.Type.BURST).withColor(Color.ORANGE).withColor(Color.BLACK).withTrail().withFlicker().build();
 						FireworkEffectPlayer fePlayer = new FireworkEffectPlayer();
 						for (int i = 0; i < 3; i++) {
 							try {
@@ -1278,12 +1239,22 @@ public abstract class Buildable extends SQLObject {
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
-						}			
+						}
+					if (rand.nextInt(100) <= 2) {
+						FireworkEffect effect1 = FireworkEffect.builder().with(org.bukkit.FireworkEffect.Type.BURST).withColor(Color.RED).withColor(Color.PURPLE).withTrail().withFlicker().build();
+						FireworkEffectPlayer fePlayer1 = new FireworkEffectPlayer();
+						for (int i = 0; i < 3; i++) {
+							try {
+								fePlayer1.playFirework(coord.getBlock().getWorld(), coord.getLocation(), effect1);
+							} catch (Exception e) {
+								e.printStackTrace();
+								}
+							}
+						}
 					}
 				}
 			}
 		}
-		
 		TaskMaster.syncTask(new SyncTask());
 	}
 	
@@ -1304,7 +1275,7 @@ public abstract class Buildable extends SQLObject {
 		}
 		
 		int regenRate = this.getRegenRate();
-		regenRate += this.getTown().getBuffManager().getEffectiveInt("buff_chichen_itza_regen_rate");
+		regenRate += this.getTown().getBuffManager().getEffectiveInt("buff:chichen_itza_regen_rate");
 		
 		if (regenRate != 0) {
 			if ((this.getHitpoints() != this.getMaxHitPoints()) && 

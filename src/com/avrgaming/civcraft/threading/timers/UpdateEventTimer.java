@@ -29,6 +29,8 @@ import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
+import com.avrgaming.civcraft.threading.tasks.FisheryAsyncTask;
+import com.avrgaming.civcraft.threading.tasks.LumberMillAsyncTask;
 import com.avrgaming.civcraft.threading.tasks.TrommelAsyncTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 
@@ -62,12 +64,22 @@ public class UpdateEventTimer extends CivAsyncTask {
 							if (!CivGlobal.trommelsEnabled) {
 								continue;
 							}
-							
-							TaskMaster.asyncTask("trommel-"+struct.getCorner().toString(), new TrommelAsyncTask(struct), 0);
+						TaskMaster.asyncTask("trommel-"+struct.getCorner().toString(), new TrommelAsyncTask(struct), 0);
+					}
+					if (struct.getUpdateEvent().equals("fish_hatchery_process")) {
+						if (!CivGlobal.fisheryEnabled) {
+								continue;
+						}
+						TaskMaster.asyncTask("fishHatchery-"+struct.getCorner().toString(), new FisheryAsyncTask(struct), 0);
+					}
+					if (struct.getUpdateEvent().equals("lumber_mill_process")) {
+						if (!CivGlobal.lumberEnabled) {
+								continue;
+						}
+						TaskMaster.asyncTask("lumbermill-"+struct.getCorner().toString(), new LumberMillAsyncTask(struct), 0);
 						}
 					}
-					
-					struct.onUpdate();
+				struct.onUpdate();
 				} catch (Exception e) {
 					e.printStackTrace();
 					//We need to catch any exception so that an error in one town/structure/good does not
@@ -91,11 +103,8 @@ public class UpdateEventTimer extends CivAsyncTask {
 					TaskMaster.asyncTask(new CampUpdateTick(camp), 0);
 				}
 			}
-		
 		} finally {
 			lock.unlock();
 		}
-
 	}
-
 }

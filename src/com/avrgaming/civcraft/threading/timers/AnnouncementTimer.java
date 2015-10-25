@@ -70,18 +70,15 @@ public class AnnouncementTimer implements Runnable {
 	
 	
 	@Override
-	public void run() {		
-		
+	public void run() {	
 		for (String str : announcements) {
 			CivMessage.sendAll(CivColor.Gold+"Tip: "+CivColor.White+str);
-			
 			try {
 				Thread.sleep(60*5*1000); //sleep for 5 mins
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 				return;
-			} 
+			}
 		}
 	}
-
 }

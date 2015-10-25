@@ -1,21 +1,3 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.main;
 
 import java.io.File;
@@ -27,7 +9,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,7 +35,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.avrgaming.civcraft.arena.ArenaTeam;
 import com.avrgaming.civcraft.camp.Camp;
 import com.avrgaming.civcraft.camp.CampBlock;
 import com.avrgaming.civcraft.camp.WarCamp;
@@ -64,8 +44,6 @@ import com.avrgaming.civcraft.endgame.EndGameCondition;
 import com.avrgaming.civcraft.event.EventTimer;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
-import com.avrgaming.civcraft.exception.InvalidNameException;
-import com.avrgaming.civcraft.exception.InvalidObjectException;
 import com.avrgaming.civcraft.items.BonusGoodie;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.CultureChunk;
@@ -179,10 +157,12 @@ public class CivGlobal {
 	
 	//TODO convert this to completely static?
 	private static SessionDatabase sdb;
-
-	public static boolean trommelsEnabled = true;
+	
 	public static boolean towersEnabled = true;
 	public static boolean growthEnabled = true;
+	public static boolean trommelsEnabled = true;
+	public static boolean fisheryEnabled = true;
+	public static boolean lumberEnabled = true;
 	public static Boolean banWordsAlways = false;
 	public static boolean banWordsActive = false;
 	public static boolean scoringEnabled = true;
@@ -219,7 +199,6 @@ public class CivGlobal {
 		loadTradeGoodies();
 		loadRandomEvents();
 		loadProtectedBlocks();
-		loadTeams();
 		EventTimer.loadGlobalEvents();
 		EndGameCondition.init();
 		War.init();
@@ -288,35 +267,6 @@ public class CivGlobal {
 	}
 	
 	private static void loadTradeGoods() {
-		
-	}
-	
-	private static void loadTeams() throws SQLException {
-		Connection context = null;
-		ResultSet rs = null;
-		PreparedStatement ps = null;
-		
-		try {
-			context = SQL.getGameConnection();		
-			ps = context.prepareStatement("SELECT * FROM "+SQL.tb_prefix+ArenaTeam.TABLE_NAME);
-			rs = ps.executeQuery();
-	
-			while(rs.next()) {
-				try {
-					new ArenaTeam(rs);
-				} catch (InvalidNameException | InvalidObjectException
-						| CivException e) {
-					e.printStackTrace();
-				}
-			}
-	
-			Collections.sort(ArenaTeam.teamRankings);
-			Collections.reverse(ArenaTeam.teamRankings); //Lazy method.
-			
-			CivLog.info("Loaded "+ArenaTeam.arenaTeams.size()+" Arena Teams");
-		} finally {
-			SQL.close(rs, ps, context);
-		}
 	}
 	
 	private static void loadTradeGoodies() throws SQLException {

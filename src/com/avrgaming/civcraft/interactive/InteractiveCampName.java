@@ -56,9 +56,6 @@ public class InteractiveCampName implements InteractiveResponse {
 		message = message.replace("\'", "");
 		
 		Camp.newCamp(resident, player, message);
-
 		return;
-		
 	}
-
 }

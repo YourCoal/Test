@@ -1,21 +1,3 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.object;
 
 import java.sql.ResultSet;
@@ -90,12 +72,12 @@ public class Civilization extends SQLObject {
 	
 	private ConcurrentHashMap<String, Town> towns = new ConcurrentHashMap<String, Town>();
 	private ConfigGovernment government;
-
+	
 	private double baseBeakers = 1.0;	
-
+	
 	public static final int HEX_COLOR_MAX = 16777215;
 	public static final int HEX_COLOR_TOLERANCE = 40;
-
+	
 	/* Store information to display about last upkeep paid. */
 	public HashMap<String, Double> lastUpkeepPaidMap = new HashMap<String, Double>();
 	
@@ -120,9 +102,8 @@ public class Civilization extends SQLObject {
 	
 	public Civilization(String name, String capitolName, Resident leader) throws InvalidNameException {
 		this.setName(name);
-		this.leaderName = leader.getName();
+		this.leaderName = leader.getUUID().toString();
 		this.setCapitolName(capitolName);
-		
 		this.government = CivSettings.governments.get("gov_tribalism");		
 		this.color = this.pickCivColor();		
 		this.setTreasury(new EconObject(this));
@@ -188,12 +169,11 @@ public class Civilization extends SQLObject {
 	public void load(ResultSet rs) throws SQLException, InvalidNameException {
 		this.setId(rs.getInt("id"));
 		this.setName(rs.getString("name"));		
-
-		if (CivGlobal.useUUID) {
-			leaderName = CivGlobal.getResidentViaUUID(UUID.fromString(rs.getString("leaderName"))).getName();
-		} else {
-			leaderName = rs.getString("leaderName");		
-		}
+		
+		String resUUID = rs.getString("leaderName");
+		@SuppressWarnings("unused")
+		Resident res = CivGlobal.getResidentViaUUID(UUID.fromString(resUUID));
+		leaderName = resUUID;
 		
 		capitolName = rs.getString("capitolName");
 		setLeaderGroupName(rs.getString("leaderGroupName"));
@@ -244,11 +224,7 @@ public class Civilization extends SQLObject {
 	public void saveNow() throws SQLException {
 		HashMap<String, Object> hashmap = new HashMap<String, Object>();
 		hashmap.put("name", this.getName());
-		if (CivGlobal.useUUID) {
 			hashmap.put("leaderName", this.getLeader().getUUIDString());
-		} else {
-			hashmap.put("leaderName", leaderName);			
-		}
 		hashmap.put("capitolName", this.capitolName);
 		hashmap.put("leaderGroupName", this.getLeaderGroupName());
 		hashmap.put("advisersGroupName", this.getAdvisersGroupName());
@@ -404,11 +380,11 @@ public class Civilization extends SQLObject {
 	}
 
 	public Resident getLeader() {
-		return CivGlobal.getResident(leaderName);
+		return CivGlobal.getResidentViaUUID(UUID.fromString(leaderName));
 	}
 
 	public void setLeader(Resident leader) {
-		this.leaderName = leader.getName();
+		this.leaderName = leader.getUUID().toString();
 	}
 
 	@Override
@@ -435,17 +411,17 @@ public class Civilization extends SQLObject {
 		CivGlobal.removeCiv(this);
 		if (this.isConquered()) {
 			CivGlobal.removeConqueredCiv(this);
+			}
 		}
-	}
-
+	
 	public EconObject getTreasury() {
 		return treasury;
 	}
-
+	
 	public void setTreasury(EconObject treasury) {
 		this.treasury = treasury;
 	}
-
+	
 	public String getLeaderGroupName() {
 		return "leaders";
 	}
@@ -490,12 +466,13 @@ public class Civilization extends SQLObject {
 			Player player, Location loc) throws CivException {
 		
 		ItemStack stack = player.getItemInHand();
-		/*
-		 * Verify we have the correct item somewhere in our inventory.
-		 */
 		LoreCraftableMaterial craftMat = LoreCraftableMaterial.getCraftMaterial(stack);
 		if (craftMat == null || !craftMat.hasComponent("FoundCivilization")) {
 			throw new CivException("You must be holding an item that can found a Civilization.");
+		}
+		
+		if (!loc.getWorld().getName().equals("World")) {
+			throw new CivException("Can only create towns in the overworld.");
 		}
 		
 		Civilization existCiv = CivGlobal.getCiv(name);
@@ -564,8 +541,7 @@ public class Civilization extends SQLObject {
 			CivGlobal.addCiv(civ);
 			ItemStack newStack = new ItemStack(Material.AIR);
 			player.setItemInHand(newStack);
-			CivMessage.global("The Civilization of "+civ.getName()+" has been founded! "+civ.getCapitolName()+" is it's capitol!");
-			
+			CivMessage.global(player.getName()+" has founded the Civilization of "+civ.getName()+"! "+civ.getCapitolName()+" is the capitol!");
 		} catch (InvalidNameException e) {
 			throw new CivException("The name of "+name+" is invalid, please choose another.");
 		} catch (SQLException e) {
@@ -679,7 +655,7 @@ public class Civilization extends SQLObject {
 					
 					for (Civilization civ : allies) {
 						for (Town t : civ.getTowns()) {
-							if(t.getBuffManager().hasBuff("buff_notre_dame_extra_war_penalty")) {
+							if(t.getBuffManager().hasBuff("buff:notre_dame_extra_war_penalty")) {
 								doublePenalty = true;
 								break;
 							}
@@ -721,22 +697,52 @@ public class Civilization extends SQLObject {
 							war_penalty = CivSettings.getDouble(CivSettings.happinessConfig, "happiness.per_war_score");
 							double addedFromPoints = (scoreDiff)*war_penalty;
 							addedFromPoints = Math.min(CivSettings.getDouble(CivSettings.happinessConfig, "happiness.per_war_score_max"), addedFromPoints);
-
 							thisWarUpkeep += addedFromPoints;
 						} catch (InvalidConfiguration e) {
 							e.printStackTrace();
 							return 0;
 						}
 					}
-					
 					happy += thisWarUpkeep;
 				}
 			}
 		}
-	
 		return happy;
 	}
 	
+	public double getAllySafety() {
+		double safety = 0;
+		
+		/* calculate war upkeep from being an aggressor. */
+		for (Relation relation : this.getDiplomacyManager().getRelations()) {
+			if (relation.getStatus() == Status.ALLY) {
+					double thisAllyUpkeep = 0;
+					int ourScore = CivGlobal.getScoreForCiv(this);
+					int theirScore = CivGlobal.getScoreForCiv(relation.getOtherCiv());
+					int scoreDiff = ourScore - theirScore;
+					try {
+						thisAllyUpkeep += CivSettings.getDouble(CivSettings.safetyConfig, "safety.per_ally");
+					} catch (InvalidConfiguration e) {
+						e.printStackTrace();
+						return 0;
+					}
+					if (scoreDiff > 0) {
+						double ally_addition;
+						try {
+							ally_addition = CivSettings.getDouble(CivSettings.safetyConfig, "safety.per_ally_score");
+							double addedFromPoints = (scoreDiff)*ally_addition;
+							addedFromPoints = Math.min(CivSettings.getDouble(CivSettings.safetyConfig, "safety.per_ally_score_max"), addedFromPoints);
+							thisAllyUpkeep += addedFromPoints;
+						} catch (InvalidConfiguration e) {
+							e.printStackTrace();
+							return 0;
+						}
+					}
+					safety += thisAllyUpkeep;
+				}
+			}
+		return safety;
+	}
 	
 	public double getDistanceUpkeepAtLocation(Location capitolTownHallLoc, Location townHallLoc, boolean touching) throws InvalidConfiguration {
 		double town_distance_base_upkeep = CivSettings.getDoubleCiv("civ.town_distance_base_upkeep");
@@ -780,6 +786,28 @@ public class Civilization extends SQLObject {
 		
 		distance_happy = Math.round(distance_happy);
 		return distance_happy;
+	}
+	
+	public double getDistanceSafety(Location capitolTownHallLoc, Location townHallLoc, boolean touching) throws InvalidConfiguration {
+		double town_distance_base_safe = CivSettings.getDouble(CivSettings.safetyConfig, "safety.distance_base");
+		double distance_multiplier_touching =CivSettings.getDouble(CivSettings.safetyConfig, "safety.distance_multiplier");
+		double distance_multiplier_not_touching = CivSettings.getDouble(CivSettings.safetyConfig, "safety.distance_multiplier_outside_culture");
+		double maxDistanceSafety = CivSettings.getDouble(CivSettings.safetyConfig, "safety.distance_max");
+		double distance = capitolTownHallLoc.distance(townHallLoc);
+		double distance_safe = 0;
+		
+		if (touching) {
+			 distance_safe = town_distance_base_safe*(Math.pow(distance, distance_multiplier_touching));
+		} else {
+			 distance_safe = town_distance_base_safe*(Math.pow(distance, distance_multiplier_not_touching));
+		}
+		
+		if (distance_safe > maxDistanceSafety) {
+			distance_safe = maxDistanceSafety;
+		}
+		
+		distance_safe = Math.round(distance_safe);
+		return distance_safe;
 	}
 	
 	public Location getCapitolTownHallLocation() {
@@ -998,7 +1026,7 @@ public class Civilization extends SQLObject {
 	public void setBaseBeakers(double beakerRate) {
 		this.baseBeakers = beakerRate;
 	}
-
+	
 	public void addBeakers(double beakers) {
 		
 		if (beakers == 0) {
@@ -1013,9 +1041,7 @@ public class Civilization extends SQLObject {
 			this.addTech(this.getResearchTech());
 			this.setResearchProgress(0);
 			this.setResearchTech(null);
-			
 			this.save();
-			
 			return;
 		}
 		
@@ -1026,11 +1052,8 @@ public class Civilization extends SQLObject {
 				CivMessage.sendCiv(this, "Our civilizations research progress on "+getResearchTech().name+" is now "+percentageComplete+"% completed!");
 				lastTechPercentage = percentageComplete;
 			}
-			
 		}
-		
 		this.save();
-	
 	}
 
 	public void startTechnologyResearch(ConfigTech tech) throws CivException {		
@@ -1090,7 +1113,7 @@ public class Civilization extends SQLObject {
 		
 		boolean noanarchy = false;
 		for (Town t : this.getTowns()) {
-			if (t.getBuffManager().hasBuff("buff_noanarchy")) {
+			if (t.getBuffManager().hasBuff("buff:noanarchy")) {
 				noanarchy = true;
 				break;
 			}
@@ -1146,7 +1169,7 @@ public class Civilization extends SQLObject {
 			coins_per_beaker = CivSettings.getDouble(CivSettings.civConfig, "civ.coins_per_beaker");
 			
 			for (Town t : this.getTowns()) {
-				if (t.getBuffManager().hasBuff("buff_greatlibrary_double_tax_beakers")) {
+				if (t.getBuffManager().hasBuff("buff:greatlibrary_double_tax_beakers")) {
 					coins_per_beaker /= 2;
 				}
 			}
@@ -1593,7 +1616,47 @@ public class Civilization extends SQLObject {
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 		}
+		return total;
+	}
+	
+	public double getCivWideUnsafety(HashMap<String, Double> sources) {
+		double total = 0;
 		
+		try {
+			/* Get safety per town. */
+			double per_town = CivSettings.getDouble(CivSettings.safetyConfig, "safety.per_town");
+			double per_captured_town = CivSettings.getDouble(CivSettings.safetyConfig, "safety.per_captured_town");
+
+			double safe_town = 0;
+			double safe_captured_town = 0;
+			for (Town town : this.getTowns()) {
+				if (town.getMotherCiv() == null) {
+					if (!town.isCapitol()) {
+						safe_town += per_town;
+					}
+				} else {
+					safe_captured_town += per_captured_town;
+				}
+			}
+			
+			total += safe_town;
+			sources.put("Towns", safe_town);
+			
+			total += safe_captured_town;
+			sources.put("Captured Towns", safe_captured_town);
+		} catch (InvalidConfiguration e) {
+			e.printStackTrace();
+		}
+		return total;
+	}
+	
+	public double getCivWideSafety(HashMap<String, Double> sources) {
+		double total = 0;
+		
+		/* Get unsafety from wars. */
+		double ally_safety = this.getAllySafety();
+		total += ally_safety;
+		sources.put("Ally", ally_safety);
 		return total;
 	}
 	
@@ -1618,6 +1681,28 @@ public class Civilization extends SQLObject {
 				 distanceHappy = 0;
 			 }
 			 return distanceHappy;
+		 }
+		 return 0.0;
+	 }
+	 
+	 public double getDistanceSafety(Town town) {
+		 Structure capitolTownHall = this.getCapitolStructure();
+		 Structure townHall = town.getTownHall();		
+		 if (capitolTownHall != null && townHall != null) {
+			 Location loc_cap = capitolTownHall.getCorner().getLocation();
+			 Location loc_town = townHall.getCorner().getLocation();
+			 double distanceSafety;
+			 if (town.getMotherCiv() == null || town.getMotherCiv() == this) {
+				 try {
+					distanceSafety = this.getDistanceHappiness(loc_cap, loc_town, town.touchesCapitolCulture(new HashSet<Town>()));
+				} catch (InvalidConfiguration e) {
+					e.printStackTrace();
+					return 0.0;
+				}
+			 } else {
+				 distanceSafety = 0;
+			 }
+			 return distanceSafety;
 		 }
 		 return 0.0;
 	 }
@@ -1685,17 +1770,14 @@ public class Civilization extends SQLObject {
 					return false;
 				}
 			}
-			
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 			return false;
 		}
-		
 		return true;
 	}
 
 	public void rename(String name) throws CivException, InvalidNameException {
-		
 		Civilization other = CivGlobal.getCiv(name);
 		if (other != null) {
 			throw new CivException("Already another civ with this name");

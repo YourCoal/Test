@@ -82,7 +82,6 @@ public class Cottage extends Structure {
 		if (getConsumeComponent() == null) {
 			return "";
 		}
-		
 		String out = "";
 		out += "Level: "+getConsumeComponent().getLevel()+" "+getConsumeComponent().getCountString();
 		return out;
@@ -130,7 +129,6 @@ public class Cottage extends Structure {
 	}
 	
 	public void generateCoins(CivAsyncTask task) {
-		
 		if (!this.isActive()) {
 			return;
 		}
@@ -166,8 +164,8 @@ public class Cottage extends Structure {
 		if (this.getTown().getBuffManager().hasBuff(Buff.REDUCE_CONSUME)) {
 			cottage_consume_mod *= this.getTown().getBuffManager().getEffectiveDouble(Buff.REDUCE_CONSUME);
 		}
-		if (this.getTown().getBuffManager().hasBuff("buff_pyramid_cottage_consume")) {
-			cottage_consume_mod *= this.getTown().getBuffManager().getEffectiveDouble("buff_pyramid_cottage_consume");
+		if (this.getTown().getBuffManager().hasBuff("buff:pyramid_cottage_consume")) {
+			cottage_consume_mod *= this.getTown().getBuffManager().getEffectiveDouble("buff:pyramid_cottage_consume");
 		}
 		
 		if (this.getTown().getBuffManager().hasBuff(Buff.FISHING)) {
@@ -214,8 +212,8 @@ public class Cottage extends Structure {
 		}
 				
 		int total_coins = (int)Math.round(lvl.coins*this.getTown().getCottageRate());
-		if (this.getTown().getBuffManager().hasBuff("buff_pyramid_cottage_bonus")) {
-			total_coins *= this.getTown().getBuffManager().getEffectiveDouble("buff_pyramid_cottage_bonus");
+		if (this.getTown().getBuffManager().hasBuff("buff:pyramid_cottage_bonus")) {
+			total_coins *= this.getTown().getBuffManager().getEffectiveDouble("buff:pyramid_cottage_bonus");
 		}
 		
 		if (this.getCiv().hasTechnology("tech_taxation")) {

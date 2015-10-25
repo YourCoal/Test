@@ -47,13 +47,10 @@ public class Windmill extends Structure {
 
 	@Override
 	public void onEffectEvent() {
-
-	
 	}
 	
 	public void processWindmill() {
 		/* Fire a sync task to perform this. */
 		TaskMaster.syncTask(new WindmillStartSyncTask(this), 0);
 	}
-	
 }

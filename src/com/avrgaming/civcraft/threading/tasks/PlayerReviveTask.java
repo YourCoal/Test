@@ -97,7 +97,4 @@ public class PlayerReviveTask implements Runnable {
 		player.teleport(loc);		
 		
 	}
-
-	
-	
 }

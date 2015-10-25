@@ -33,10 +33,12 @@ import com.avrgaming.civcraft.object.LibraryEnchantment;
 import com.avrgaming.civcraft.object.StoreMaterial;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.Bank;
+import com.avrgaming.civcraft.structure.FishHatchery;
 import com.avrgaming.civcraft.structure.Grocer;
 import com.avrgaming.civcraft.structure.Library;
 import com.avrgaming.civcraft.structure.Store;
 import com.avrgaming.civcraft.structure.Structure;
+import com.avrgaming.civcraft.structure.Trommel;
 
 public class ConfigTownUpgrade {
 	public String id;
@@ -168,9 +170,54 @@ public class ConfigTownUpgrade {
 				}
 			}
 			break;
+		case "set_trommel_level":
+			boolean didUpgrade = false;
+			int trommelLevel = 1;
+			for (Structure structure : town.getStructures()) {
+				if (structure.getConfigId().equalsIgnoreCase("s_trommel")) {
+
+					if (structure != null && (structure instanceof Trommel)) {
+						Trommel trommel = (Trommel)structure;
+						if (trommel.getLevel() < Integer.valueOf(args[1].trim())) {
+							didUpgrade = true;
+							trommel.setLevel(Integer.valueOf(args[1].trim()));
+							town.saved_trommel_level = trommel.getLevel();
+							trommelLevel = trommel.getLevel();
+						}
+					}
+				}
+			}
+			if (didUpgrade)
+			{
+				CivMessage.sendTown(town, "Our trommels are now level "+trommelLevel);
+			}
+			break;
+		case "set_fish_hatchery_level":
+			boolean didUpgradeFishery = false;
+			int fisheryLevel = 1;
+			for (Structure structure : town.getStructures()) {
+				if (structure.getConfigId().equalsIgnoreCase("ti_fish_hatchery")) {
+
+					if (structure != null && (structure instanceof FishHatchery)) {
+						FishHatchery fishery = (FishHatchery)structure;
+						if (fishery.getLevel() < Integer.valueOf(args[1].trim())) {
+							didUpgradeFishery = true;
+							fishery.setLevel(Integer.valueOf(args[1].trim()));
+							fishery.updateSignText();
+							town.saved_fish_hatchery_level = fishery.getLevel();
+							fisheryLevel = fishery.getLevel();
+						}
+					}
+				}
+			}
+			if (didUpgradeFishery)
+			{
+				CivMessage.sendTown(town, "Our Fish Hatcheries are now level "+fisheryLevel);
+			}
+			break;
 		}
 	}
-
+	
 	public boolean isAvailable(Town town) {
 		if (CivGlobal.testFileFlag("debug-norequire")) {
 			CivMessage.global("Ignoring requirements! debug-norequire found.");

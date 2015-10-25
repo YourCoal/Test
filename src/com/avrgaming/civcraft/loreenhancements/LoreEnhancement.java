@@ -24,7 +24,8 @@ public abstract class LoreEnhancement {
 		enhancements.put("LoreEnhancementAttack", new LoreEnhancementAttack());
 		enhancements.put("LoreEnhancementDefense", new LoreEnhancementDefense());
 		enhancements.put("LoreEnhancementPunchout", new LoreEnhancementPunchout());
-		enhancements.put("LoreEnhancementArenaItem", new LoreEnhancementArenaItem());
+		enhancements.put("LoreEnhancementPunchout1", new LoreEnhancementPunchout1());
+		enhancements.put("LoreEnhancementPunchout2", new LoreEnhancementPunchout2());
 	}
 	
 	public boolean onDeath(PlayerDeathEvent event, ItemStack stack) { return false; }

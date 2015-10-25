@@ -29,9 +29,9 @@ public class PvPListener implements Listener {
 				event.setCancelled(true);					
 			}
 		}
+		
 		if (event.getDamager() instanceof Arrow) {
 			LivingEntity shooter = (LivingEntity) ((Arrow) event.getDamager()).getShooter();
-			
 			if ((shooter instanceof Player) && (event.getEntity() instanceof Player)) {
 				Player damager = (Player) shooter;
 				Resident damagerResident = CivGlobal.getResident(damager);
@@ -49,6 +49,7 @@ public class PvPListener implements Listener {
 				}				
 			}
 		}
+		
 		if ((event.getEntity() instanceof Player) && !event.isCancelled() && (event.getDamager() instanceof Player)) {
 			Player damager = (Player) event.getDamager();
 			Player defendingPlayer = (Player) event.getEntity();

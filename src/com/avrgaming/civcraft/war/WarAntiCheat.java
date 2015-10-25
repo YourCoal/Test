@@ -36,7 +36,6 @@ public class WarAntiCheat {
 			Resident resident = CivGlobal.getResident(player);
 			onWarTimePlayerCheck(resident);
 		}
-		
 		CivMessage.global(CivColor.LightGray+"All 'at war' players not using CivCraft's Anti-Cheat have been expelled during WarTime.");
 	}
 	
@@ -53,10 +52,10 @@ public class WarAntiCheat {
 			if (!resident.isUsesAntiCheat()) {
 				TaskMaster.syncTask(new PlayerKickBan(resident.getName(), true, false, 
 						"Kicked: You are required to have CivCraft's Anti-Cheat plugin installed to participate in WarTime."+
-						"Visit http://civcraft.net to get it."));
-			}
-		} catch (CivException e) {
+						" Visit http://rapidegaming.com/ to get it."));
+				CivMessage.global(CivColor.LightGray+resident.getName()+" has been kicked for not using anti-cheat!");
+				}
+			} catch (CivException e) {
 		}
 	}
-	
 }

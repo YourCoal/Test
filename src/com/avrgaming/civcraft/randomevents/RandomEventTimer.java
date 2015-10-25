@@ -79,6 +79,4 @@ public class RandomEventTimer implements EventInterface {
 		now.setTimeInMillis(now.getTime().getTime() + hours*RandomEventSweeper.MILLISECONDS_PER_HOUR);
 		return now;
 	}
-
-
 }

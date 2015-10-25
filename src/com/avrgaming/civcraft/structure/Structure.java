@@ -80,6 +80,13 @@ public class Structure extends Buildable {
 		Structure struct;
 		
 		switch (id) {
+		case "s_arrowtower":
+			if (rs == null) {
+				struct = (Structure) new ArrowTower(center, id, town);
+			} else {
+				struct = (Structure) new ArrowTower(rs);
+			}
+			break;
 		case "s_bank":
 			if (rs == null) {
 				struct = (Structure) new Bank(center, id, town);
@@ -87,23 +94,27 @@ public class Structure extends Buildable {
 				struct = (Structure) new Bank(rs);
 			}
 			break;
-		
-		case "s_trommel":
+		case "s_blacksmith":
 			if (rs == null) {
-				struct = (Structure) new Trommel(center, id, town);
+				struct = (Structure) new Blacksmith(center, id, town);
 			} else {
-				struct = (Structure) new Trommel(rs);
-			}
-			break;	
-			
-		case "s_store":
-			if (rs == null) {
-				struct = (Structure) new Store(center, id, town);
-			} else {
-				struct = (Structure) new Store(rs);
+				struct = (Structure) new Blacksmith(rs);
 			}
 			break;
-		
+		case "ti_fish_hatchery":
+			if (rs == null) {
+				struct = (Structure) new FishHatchery(center, id, town);
+			} else {
+				struct = (Structure) new FishHatchery(rs);
+			}
+			break;
+		case "s_granary":
+			if (rs == null) {
+				struct = (Structure) new Granary(center, id, town);
+			} else {
+				struct = (Structure) new Granary(rs);
+			}
+			break;
 		case "s_grocer":
 			if (rs == null) {
 				struct = (Structure) new Grocer(center, id, town);
@@ -111,7 +122,6 @@ public class Structure extends Buildable {
 				struct = (Structure) new Grocer(rs);
 			}
 			break;
-			
 		case "s_library":
 			if (rs == null) {
 				struct = (Structure) new Library(center, id, town);
@@ -119,20 +129,25 @@ public class Structure extends Buildable {
 				struct = (Structure) new Library(rs);
 			}
 			break;	
-		
-		case "s_blacksmith":
+		case "ti_lumber_mill":
 			if (rs == null) {
-				struct = (Structure) new Blacksmith(center, id, town);
+				struct = (Structure) new LumberMill(center, id, town);
 			} else {
-				struct = (Structure) new Blacksmith(rs);
+				struct = (Structure) new LumberMill(rs);
 			}
 			break;	
-			
-		case "s_granary":
+		case "s_store":
 			if (rs == null) {
-				struct = (Structure) new Granary(center, id, town);
+				struct = (Structure) new Store(center, id, town);
 			} else {
-				struct = (Structure) new Granary(rs);
+				struct = (Structure) new Store(rs);
+			}
+			break;
+		case "s_trommel":
+			if (rs == null) {
+				struct = (Structure) new Trommel(center, id, town);
+			} else {
+				struct = (Structure) new Trommel(rs);
 			}
 			break;
 			
@@ -197,13 +212,6 @@ public class Structure extends Buildable {
 				struct = (Structure) new Capitol(center, id, town);
 			} else {
 				struct = (Structure) new Capitol(rs);
-			}
-			break;
-		case "s_arrowtower":
-			if (rs == null) {
-				struct = (Structure) new ArrowTower(center, id, town);
-			} else {
-				struct = (Structure) new ArrowTower(rs);
 			}
 			break;
 		case "s_cannontower":

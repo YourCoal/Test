@@ -1,21 +1,3 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.structure.farm;
 
 import java.util.ArrayList;
@@ -61,7 +43,6 @@ public class FarmChunk {
 	private int lastRandomInt;
 	private int missedGrowthTicks;
 	private int missedGrowthTicksStat;
-	
 	String biomeName = "none";
 	
 	public FarmChunk(Chunk c, Town t, Structure struct) {
@@ -78,9 +59,11 @@ public class FarmChunk {
 	public Town getTown() {
 		return town;
 	}
+	
 	public void setTown(Town town) {
 		this.town = town;
 	}
+	
 	public Structure getStruct() {
 		return struct;
 	}
@@ -92,10 +75,9 @@ public class FarmChunk {
 	public void setStruct(Structure struct) {
 		this.struct = struct;
 	}
-
+	
 	public boolean isHydrated(Block block) {
-		Block beneath = block.getRelative(0, -1, 0);
-				
+		Block beneath = block.getRelative(0, -1, 0);	
 		if (beneath != null) {
 			if (ItemManager.getId(beneath) == CivData.FARMLAND) {
 				if (ItemManager.getData(beneath) != 0x0)
@@ -140,9 +122,9 @@ public class FarmChunk {
 		}
 		
 		if (bs.getTypeId() == CivData.MELON_STEM) {
-			addGrowBlock("world", freeBlock.getX(), freeBlock.getY(), freeBlock.getZ(), CivData.MELON, 0x0, true);
+			addGrowBlock("World", freeBlock.getX(), freeBlock.getY(), freeBlock.getZ(), CivData.MELON, 0x0, true);
 		} else {
-			addGrowBlock("world", freeBlock.getX(), freeBlock.getY(), freeBlock.getZ(), CivData.PUMPKIN, 0x0, true);
+			addGrowBlock("World", freeBlock.getX(), freeBlock.getY(), freeBlock.getZ(), CivData.PUMPKIN, 0x0, true);
 		}
 		return;
 	}
@@ -152,7 +134,6 @@ public class FarmChunk {
 	}
 	
 	public void growBlock(BlockSnapshot bs, BlockCoord growMe, CivAsyncTask task) throws InterruptedException {
-				
 		//XXX we are skipping hydration as I guess we dont seem to care.
 		//XXX we also skip light level checks, as we dont really care about that either.
 		switch(bs.getTypeId()) {
@@ -160,32 +141,31 @@ public class FarmChunk {
 		case CivData.CARROTS:
 		case CivData.POTATOES:
 			if (bs.getData() < 0x7) {
-				addGrowBlock("world", growMe.getX(), growMe.getY(), growMe.getZ(), bs.getTypeId(), bs.getData()+0x1, false);
+				addGrowBlock("World", growMe.getX(), growMe.getY(), growMe.getZ(), bs.getTypeId(), bs.getData()+0x1, false);
 			}
 			break;
 		case CivData.NETHERWART:
 			if (bs.getData() < 0x3) {
-				addGrowBlock("world", growMe.getX(), growMe.getY(), growMe.getZ(), bs.getTypeId(), bs.getData()+0x1, false);
+				addGrowBlock("World", growMe.getX(), growMe.getY(), growMe.getZ(), bs.getTypeId(), bs.getData()+0x1, false);
 			}
 			break;
 		case CivData.MELON_STEM:
 		case CivData.PUMPKIN_STEM:
 			if (bs.getData() < 0x7) {
-				addGrowBlock("world", growMe.getX(), growMe.getY(), growMe.getZ(), bs.getTypeId(), bs.getData()+0x1, false);
+				addGrowBlock("World", growMe.getX(), growMe.getY(), growMe.getZ(), bs.getTypeId(), bs.getData()+0x1, false);
 			} else if (bs.getData() == 0x7) {
 				spawnMelonOrPumpkin(bs, task);
 			}
 			break;
-		case CivData.COCOAPOD:	
+		case CivData.COCOAPOD:
 			if (CivData.canCocoaGrow(bs)) {
-				addGrowBlock("world", growMe.getX(), growMe.getY(), growMe.getZ(), bs.getTypeId(),CivData.getNextCocoaValue(bs), false);
+				addGrowBlock("World", growMe.getX(), growMe.getY(), growMe.getZ(), bs.getTypeId(),CivData.getNextCocoaValue(bs), false);
 			}
 			break;
 		}
 	}
 	
 	public void processGrowth(CivAsyncTask task) throws InterruptedException {
-		
 		if (this.getStruct().isActive() == false) {
 			return;
 		}
@@ -373,7 +353,4 @@ public class FarmChunk {
 	public int getMissedGrowthTicksStat() {
 		return missedGrowthTicksStat;
 	}
-
-	
-	
 }

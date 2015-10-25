@@ -30,7 +30,6 @@ public class LoreEnhancementPunchout extends LoreEnhancement {
 				damage += rand.nextInt(5)+1;
 			}		
 		}
-		
 		return damage; 
 	}
 	
@@ -38,10 +37,9 @@ public class LoreEnhancementPunchout extends LoreEnhancement {
 	public String serialize(ItemStack stack) {
 		return "";
 	}
-
+	
 	@Override
 	public ItemStack deserialize(ItemStack stack, String data) {
 		return stack;
 	}
-
 }

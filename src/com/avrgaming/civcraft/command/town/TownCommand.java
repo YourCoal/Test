@@ -40,6 +40,7 @@ import com.avrgaming.civcraft.config.ConfigCultureBiomeInfo;
 import com.avrgaming.civcraft.config.ConfigCultureLevel;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
+import com.avrgaming.civcraft.lorestorage.LoreCraftableMaterial;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -96,17 +97,43 @@ public class TownCommand extends CommandBase {
 		commands.put("claimmayor", "claim yourself as mayor of this town. All current mayors must be inactive.");
 		commands.put("movestructure", "[coord] [town] moves the structure specified by the coord to the specfied town.");
 		commands.put("enablestructure", "[coord] attempts to enable the specified structure if its currently disabled.");
+		commands.put("book", "Gives you a book with helpful information.");
+		commands.put("religion", "Control your religion.");
+	}
+	
+	public void book_cmd() throws CivException {
+		Player player = getPlayer();
+		for (ItemStack stack : player.getInventory().getContents()) {
+			if (stack == null) {
+				continue;
+			}
+			LoreCraftableMaterial craftMat = LoreCraftableMaterial.getCraftMaterial(stack);
+			if (craftMat == null) {
+				continue;
+			}
+			if (craftMat.getConfigId().equals("civ:town_book")) {
+				throw new CivException("You already have a town book.");
+			}
+		}
+		
+		LoreCraftableMaterial craftMat = LoreCraftableMaterial.getCraftMaterialFromId("civ:town_book");
+		ItemStack helpBook = LoreCraftableMaterial.spawn(craftMat);
+		HashMap<Integer, ItemStack> leftovers = player.getInventory().addItem(helpBook);
+		if (leftovers != null && leftovers.size() >= 1) {
+			throw new CivException("You cannot hold anything else. Get some space open in your inventory first.");
+		}
+		CivMessage.sendSuccess(player, "Added a town book to your inventory!");
 	}
 	
 	public void enablestructure_cmd() throws CivException {
 		Town town = getSelectedTown();
 		Resident resident = getResident();
-		String coordString = getNamedString(1, "Coordinate of structure. Example: world,555,65,444");
+		String coordString = getNamedString(1, "Coordinate of structure. Example: World,555,65,444");
 		Structure struct;
 		try {
 			struct = CivGlobal.getStructure(new BlockCoord(coordString));
 		} catch (Exception e) {
-			throw new CivException("Invalid structure coordinate. Example: world,555,65,444");
+			throw new CivException("Invalid structure coordinate. Example: World,555,65,444");
 		}
 		
 		if (War.isWarTime()) {
@@ -114,7 +141,7 @@ public class TownCommand extends CommandBase {
 		}
 		
 		if (struct == null) {
-			throw new CivException("Structure at:"+coordString+" is not found.");
+			throw new CivException("Structure at "+coordString+" is not found.");
 		}
 		
 		if (!resident.getCiv().getLeaderGroup().hasMember(resident)) {
@@ -134,14 +161,14 @@ public class TownCommand extends CommandBase {
 	public void movestructure_cmd() throws CivException {
 		Town town = getSelectedTown();
 		Resident resident = getResident();
-		String coordString = getNamedString(1, "Coordinate of structure. Example: world,555,65,444");
+		String coordString = getNamedString(1, "Coordinate of structure. Example: World,555,65,444");
 		Town targetTown = getNamedTown(2);
 		Structure struct;
 		
 		try {
 			struct = CivGlobal.getStructure(new BlockCoord(coordString));
 		} catch (Exception e) {
-			throw new CivException("Invalid structure coordinate. Example: world,555,65,444");
+			throw new CivException("Invalid structure coordinate. Example: World,555,65,444");
 		}
 
 		if (struct instanceof TownHall || struct instanceof Capitol) {
@@ -260,6 +287,7 @@ public class TownCommand extends CommandBase {
 		double hammers = 0.0;
 		double growth = 0.0;
 		double happiness = 0.0;
+		double safety = 0.0;
 		double beakers = 0.0;
 		DecimalFormat df = new DecimalFormat();
 		
@@ -280,6 +308,7 @@ public class TownCommand extends CommandBase {
 			hammers += info.hammers;
 			growth += info.growth;
 			happiness += info.happiness;
+			safety += info.safety;
 			beakers += info.beakers;
 		}
 		
@@ -296,6 +325,7 @@ public class TownCommand extends CommandBase {
 		
 		outList.add(CivColor.LightBlue+"Totals");
 		outList.add(CivColor.Green+" Happiness:"+CivColor.LightGreen+df.format(happiness)+
+				CivColor.Green+" Safety:"+CivColor.LightGreen+df.format(safety)+
 				CivColor.Green+" Hammers:"+CivColor.LightGreen+df.format(hammers)+
 				CivColor.Green+" Growth:"+CivColor.LightGreen+df.format(growth)+
 				CivColor.Green+" Beakers:"+CivColor.LightGreen+df.format(beakers));
@@ -463,7 +493,7 @@ public class TownCommand extends CommandBase {
 			for (Integer score : CivGlobal.townScores.descendingKeySet()) {
 				CivMessage.send(sender, i+") "+CivColor.Gold+CivGlobal.townScores.get(score).getName()+CivColor.White+" - "+score+" points");
 				i++;
-				if (i > 5) {
+				if (i > 10) {
 					break;
 				}
 			}
@@ -602,6 +632,11 @@ public class TownCommand extends CommandBase {
 		resident.save();
 	}
 	
+	public void religion_cmd() {
+		TownReligionCommand cmd = new TownReligionCommand();	
+		cmd.onCommand(sender, null, "religion", this.stripArgs(args, 1));
+	}
+	
 	public void set_cmd() {
 		TownSetCommand cmd = new TownSetCommand();	
 		cmd.onCommand(sender, null, "set", this.stripArgs(args, 1));
@@ -630,6 +665,10 @@ public class TownCommand extends CommandBase {
 			throw new CivException("Only mayors can use this command.");
 		}
 		
+		if (!resident.getCiv().getLeaderGroup().hasMember(resident)) {
+			throw new CivException("You must be the civ's leader in order to do this.");
+		}
+		
 		try {
 			Double amount = Double.valueOf(args[1]);
 			if (amount < 1) {
@@ -643,7 +682,6 @@ public class TownCommand extends CommandBase {
 		} catch (NumberFormatException e) {
 			throw new CivException(args[1]+" is not a valid number.");
 		}
-		
 		CivMessage.sendSuccess(sender, "Withdrew "+args[1]+" coins.");
 	}
 	
@@ -757,13 +795,6 @@ public class TownCommand extends CommandBase {
 		if (!town.playerIsInGroupName("mayors", player) && !town.playerIsInGroupName("assistants", player)) {
 			throw new CivException("Only mayors and assistants can use this command.");
 		}
-		
-//		boolean outpost = false;
-//		if (args.length >= 2 && args[1].equalsIgnoreCase("outpost")) {
-//			outpost = true;
-//			CivMessage.send(player, "Claiming an outpost!");
-//		}
-		
 		TownChunk.claim(town, player, false);
 	}
 	
@@ -791,19 +822,13 @@ public class TownCommand extends CommandBase {
 		}
 		
 		TownChunk.unclaim(tc);
-		if (tc.isOutpost()) {
-			CivMessage.sendSuccess(sender, "Unclaimed Outpost at "+tc.getCenterString());
-		} else {
 			CivMessage.sendSuccess(sender, "Unclaimed "+tc.getCenterString());
-		}
-		
 	}
 	
 	public void group_cmd() throws CivException {
 		TownGroupCommand cmd = new TownGroupCommand();	
 		cmd.onCommand(sender, null, "group", this.stripArgs(args, 1));
 	}
-	
 	
 	public void members_cmd() throws CivException {
 		Town town = this.getSelectedTown();
@@ -830,5 +855,4 @@ public class TownCommand extends CommandBase {
 		//TODO make this an info command.
 		showHelp();
 	}
-		
 }

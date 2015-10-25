@@ -59,7 +59,7 @@ public class PickRandomBlock extends RandomEventComponent {
 						}
 						
 						/* Search for a 'valid' block to be used as breakable in the chunk. */
-						int startY = rand.nextInt(20) + 4; /* Select a y somewhere between 4 and 24. */
+						int startY = rand.nextInt(16) + 8; /* Select a y somewhere between 8 and 24. */
 						for (int x = 0; x < 16; x++) {
 							for (int z = 0; z < 16; z++) {
 								for (int y = startY; y < 50; y++) { /* no need to check higher than 128, unlikely to find a good block. */

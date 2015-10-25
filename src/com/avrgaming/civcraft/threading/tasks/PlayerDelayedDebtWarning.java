@@ -32,7 +32,4 @@ public class PlayerDelayedDebtWarning implements Runnable {
 	public void run() {
 		resident.warnDebt();
 	}
-	
-	
-	
 }

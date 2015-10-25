@@ -41,7 +41,7 @@ import com.avrgaming.civcraft.util.ItemManager;
 public class Farm extends Structure {
 	
 	public static final long GROW_RATE = (int)CivSettings.getIntegerStructure("farm.grow_tick_rate");
-	public static final int CROP_GROW_LIGHT_LEVEL = 9;
+	public static final int CROP_GROW_LIGHT_LEVEL = 7;
 	public static final int MUSHROOM_GROW_LIGHT_LEVEL = 12;
 	public static final int MAX_SUGARCANE_HEIGHT = 3;
 	
@@ -140,9 +140,7 @@ public class Farm extends Structure {
 					CivGlobal.getSessionDB().update(entries.get(0).request_id, getSessionKey(), ""+missedTicks);
 				}
 			}
-			
 		}
-	
 		TaskMaster.asyncTask(new AsyncSave(this, this.fc.getMissedGrowthTicks()), 0);
 	}
 	
@@ -167,7 +165,6 @@ public class Farm extends Structure {
 				this.missedGrowths = missedGrowths;
 			}
 			
-			
 			@Override
 			public void run() {
 				fc.setMissedGrowthTicks(missedGrowths);
@@ -175,7 +172,6 @@ public class Farm extends Structure {
 				saveMissedGrowths();
 			}
 		}
-
 		TaskMaster.asyncTask(new AsyncTask(missedGrowths), 0);
 	}
 

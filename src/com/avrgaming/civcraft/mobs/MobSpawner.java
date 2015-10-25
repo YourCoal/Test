@@ -7,8 +7,8 @@ import org.bukkit.Location;
 
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.util.CivColor;
-import com.avrgaming.mob.ICustomMob;
-import com.avrgaming.moblib.MobLib;
+import com.moblib.mob.ICustomMob;
+import com.moblib.moblib.MobLib;
 
 public class MobSpawner {
 
@@ -33,9 +33,7 @@ public class MobSpawner {
 	public static enum CustomMobType {
 		YOBO("Yobo", "com.avrgaming.civcraft.mobs.Yobo"),
 		YOBOBOSS("Yobo Boss", "com.avrgaming.civcraft.mobs.YoboBoss"),
-		RUFFIAN("Ruffian", "com.avrgaming.civcraft.mobs.Ruffian"),
-		BEHEMOTH("Behemoth", "com.avrgaming.civcraft.mobs.Behemoth"),
-		SAVAGE("Cannibal", "com.avrgaming.civcraft.mobs.Savage"),
+		BARBARIAN("Barbarian", "com.avrgaming.civcraft.mobs.Barbarian"),
 		ANGRYYOBO("Angry Yobo", "com.avrgaming.civcraft.mobs.AngryYobo");
 		
 		private String name;
@@ -57,9 +55,7 @@ public class MobSpawner {
 	
 	public static void register() {
 		Yobo.register();
-		Behemoth.register();
-		Savage.register();
-		Ruffian.register();
+		Barbarian.register();
 	}
 	
 	public static void despawnAll() {
